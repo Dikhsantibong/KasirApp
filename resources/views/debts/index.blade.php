@@ -18,10 +18,9 @@
                     <input type="text" name="search" placeholder="Cari nama pelanggan..." value="{{ request('search') }}">
                 </form>
             </div>
-            
             <div style="display:flex; align-items:center; gap:15px;">
                 <div style="font-size: 1.25rem; color: #5e6c84; cursor: pointer;"><i class="far fa-bell"></i></div>
-                <img src="https://ui-avatars.com/api/?name=Admin+Toko&background=0D8ABC&color=fff" style="width:36px; height:36px; border-radius:50%;">
+                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'Admin') }}&background=0D8ABC&color=fff" style="width:36px; height:36px; border-radius:50%;">
             </div>
         </header>
 
@@ -29,42 +28,39 @@
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Monitoring Hutang Pelanggan</h1>
-                    <p class="page-subtitle">Pantau pembayaran tertunda dan kelola jatuh tempo dengan detail kalender riwayat hutang.</p>
+                    <p class="page-subtitle">Pantau pembayaran tertunda dan kelola jatuh tempo dengan detail.</p>
                 </div>
             </div>
 
-            <!-- STATS CARDS -->
+            <!-- STATS -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon icon-blue"><i class="fas fa-wallet"></i></div>
                     <div class="stat-info">
                         <h4>Total Piutang (Kredit Keluar)</h4>
-                        <h2>Rp {{ number_format($totalUnpaidAmount ?? 0, 0, ',', '.') }}</h2>
+                        <h2>Rp {{ number_format($totalUnpaidAmount, 0, ',', '.') }}</h2>
                     </div>
                 </div>
-                
                 <div class="stat-card">
                     <div class="stat-icon icon-red"><i class="fas fa-exclamation-circle"></i></div>
                     <div class="stat-info">
                         <h4>Terlambat (Lewat Jatuh Tempo)</h4>
-                        <h2 style="color:#ef4444;">Rp {{ number_format($overdueAmount ?? 0, 0, ',', '.') }}</h2>
+                        <h2 style="color:#ef4444;">Rp {{ number_format($overdueAmount, 0, ',', '.') }}</h2>
                     </div>
                 </div>
-
                 <div class="stat-card">
                     <div class="stat-icon icon-orange"><i class="fas fa-users"></i></div>
                     <div class="stat-info">
                         <h4>Pelanggan Lewat Tempo</h4>
-                        <h2>{{ $overdueCount ?? 0 }} Orang</h2>
+                        <h2>{{ $overdueCount }} Orang</h2>
                     </div>
                 </div>
             </div>
 
             <div class="dashboard-grid">
-                <!-- MAIN TABLE -->
+                <!-- TABLE -->
                 <div class="table-container">
                     <h3 class="section-title"><i class="fas fa-table"></i> Daftar Riwayat Piutang</h3>
-                    
                     <table class="debts-table">
                         <thead>
                             <tr>
@@ -78,22 +74,18 @@
                         <tbody>
                             @forelse($allDebts as $debt)
                                 @php
-                                    $isOverdue = \Carbon\Carbon::parse($debt->due_date)->isPast() && $debt->status != 'Lunas';
+                                    $isOverdue = $debt->due_date && \Carbon\Carbon::parse($debt->due_date)->isPast() && $debt->status != 'Lunas';
                                     $statusClass = $debt->status == 'Lunas' ? 'status-lunas' : ($isOverdue ? 'status-overdue' : 'status-hutang');
                                 @endphp
                                 <tr>
                                     <td>
                                         <span class="customer-name">{{ $debt->customer->name ?? 'Anonim' }}</span>
-                                        <span class="transaction-id">TRX: {{ substr($debt->transaction_id ?? $debt->id, 0, 8) }}</span>
+                                        <span class="transaction-id">TRX: {{ strtoupper(substr($debt->transaction_id ?? $debt->id, 0, 8)) }}</span>
                                     </td>
                                     <td><span class="amount-val">Rp {{ number_format($debt->amount, 0, ',', '.') }}</span></td>
                                     <td>
                                         <span class="date-val {{ $isOverdue ? 'date-overdue' : '' }}">
-                                            @if($debt->due_date)
-                                                {{ \Carbon\Carbon::parse($debt->due_date)->format('d M Y') }}
-                                            @else
-                                                Tidak Ada
-                                            @endif
+                                            {{ $debt->due_date ? \Carbon\Carbon::parse($debt->due_date)->format('d M Y') : 'Tidak Ada' }}
                                         </span>
                                     </td>
                                     <td><span class="status-badge {{ $statusClass }}">{{ $debt->status ?? 'Menunggu' }}</span></td>
@@ -107,107 +99,49 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" style="text-align:center; padding: 2rem; color:#94a3b8;">Tidak ada catatan hutang.</td>
-                                </tr>
-                                <!-- Dummy Visual Rows for Demo Context -->
-                                <tr>
-                                    <td>
-                                        <span class="customer-name">Bambang Pamungkas</span>
-                                        <span class="transaction-id">TRX: 8b1n3kd</span>
+                                    <td colspan="5" style="text-align:center; padding:3rem; color:#94a3b8;">
+                                        <i class="fas fa-file-invoice-dollar" style="font-size:2rem; opacity:0.2; display:block; margin-bottom:0.5rem;"></i>
+                                        Tidak ada catatan hutang.
                                     </td>
-                                    <td><span class="amount-val">Rp 4.200.000</span></td>
-                                    <td><span class="date-val date-overdue">{{ \Carbon\Carbon::now()->subDays(3)->format('d M Y') }}</span></td>
-                                    <td><span class="status-badge status-overdue">Terlewat</span></td>
-                                    <td><button class="action-btn action-btn-pay"><i class="fas fa-money-bill"></i> Tagih</button></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <span class="customer-name">Siti Nurhaliza</span>
-                                        <span class="transaction-id">TRX: 3kfj29</span>
-                                    </td>
-                                    <td><span class="amount-val">Rp 500.000</span></td>
-                                    <td><span class="date-val">{{ \Carbon\Carbon::now()->addDays(5)->format('d M Y') }}</span></td>
-                                    <td><span class="status-badge status-hutang">Berjalan</span></td>
-                                    <td><button class="action-btn action-btn-pay"><i class="fas fa-money-bill"></i> Tagih</button></td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
-                    
                     <div class="pagination-area">
-                        {{ collect($allDebts ?? [])->isNotEmpty() ? $allDebts->links('pagination::bootstrap-4') : '' }}
+                        @if($allDebts->hasPages())
+                            {{ $allDebts->links('pagination::bootstrap-4') }}
+                        @endif
                     </div>
                 </div>
 
-                <!-- TIMELINE SIDEBAR (VISUAL CALENDAR) -->
+                <!-- TIMELINE -->
                 <div class="timeline-panel">
                     <h3 class="section-title"><i class="far fa-calendar-alt"></i> Timeline Jatuh Tempo</h3>
-                    
                     <div class="timeline-list">
-                        <!-- Demonstrasi Data Timeline -->
                         @php
-                            $upcoming = isset($allDebts) && count($allDebts) > 0 ? 
-                                $allDebts->filter(function($d) { return $d->status != 'Lunas'; })->sortBy('due_date')->take(4) : [];
+                            $upcoming = $allDebts->filter(function($d) { return $d->status != 'Lunas'; })->sortBy('due_date')->take(5);
                         @endphp
-                        
                         @forelse($upcoming as $u)
-                            @php
-                                $dPast = \Carbon\Carbon::parse($u->due_date)->isPast();
-                            @endphp
+                            @php $dPast = $u->due_date && \Carbon\Carbon::parse($u->due_date)->isPast(); @endphp
                             <div class="timeline-item">
                                 <div class="timeline-dot {{ $dPast ? 'danger' : 'warning' }}"></div>
-                                <div class="timeline-date">{{ \Carbon\Carbon::parse($u->due_date)->diffForHumans() }}</div>
+                                <div class="timeline-date">{{ $u->due_date ? \Carbon\Carbon::parse($u->due_date)->diffForHumans() : '-' }}</div>
                                 <div class="timeline-card {{ $dPast ? 'urgent' : '' }}">
                                     <h4>{{ $u->customer->name ?? 'Anonim' }}</h4>
                                     <div class="timeline-card-flex">
-                                        <span style="font-size:0.8rem;">Jatuh Tempo: {{ \Carbon\Carbon::parse($u->due_date)->format('d M') }}</span>
+                                        <span style="font-size:0.8rem;">{{ $u->due_date ? \Carbon\Carbon::parse($u->due_date)->format('d M Y') : '-' }}</span>
                                         <span class="timeline-amount">Rp {{ number_format($u->amount, 0, ',', '.') }}</span>
                                     </div>
                                 </div>
                             </div>
                         @empty
-                            <!-- Dummy Data for Visual Presentation -->
-                            <div class="timeline-item">
-                                <div class="timeline-dot danger"></div>
-                                <div class="timeline-date">3 hari yang lalu</div>
-                                <div class="timeline-card urgent">
-                                    <h4>Bambang Pamungkas</h4>
-                                    <div class="timeline-card-flex">
-                                        <span style="font-size:0.8rem;">Jatuh Tempo: {{ \Carbon\Carbon::now()->subDays(3)->format('d M') }}</span>
-                                        <span class="timeline-amount">Rp 4.200.000</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-dot warning"></div>
-                                <div class="timeline-date">Minggu Depan</div>
-                                <div class="timeline-card">
-                                    <h4>Siti Nurhaliza</h4>
-                                    <div class="timeline-card-flex">
-                                        <span style="font-size:0.8rem;">Jatuh Tempo: {{ \Carbon\Carbon::now()->addDays(5)->format('d M') }}</span>
-                                        <span class="timeline-amount">Rp 500.000</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-dot"></div>
-                                <div class="timeline-date">Bulan Depan</div>
-                                <div class="timeline-card">
-                                    <h4>Cafe Semesta</h4>
-                                    <div class="timeline-card-flex">
-                                        <span style="font-size:0.8rem;">Jatuh Tempo: {{ \Carbon\Carbon::now()->addDays(15)->format('d M') }}</span>
-                                        <span class="timeline-amount">Rp 1.150.000</span>
-                                    </div>
-                                </div>
+                            <div style="text-align:center; color:#94a3b8; padding:2rem;">
+                                <i class="fas fa-check-circle" style="color:#10b981; font-size:1.5rem; display:block; margin-bottom:0.5rem;"></i>
+                                Tidak ada hutang yang belum lunas.
                             </div>
                         @endforelse
-                        
-                        <div style="margin-top:1rem; text-align:center;">
-                            <a href="#" style="color:#0052cc; font-weight:600; font-size:0.85rem; text-decoration:none;">Lihat Seluruh Kalender Kalender &rarr;</a>
-                        </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </main>

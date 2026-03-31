@@ -6,31 +6,66 @@ use Illuminate\Http\Request;
 
 use App\Models\Transaction;
 use App\Models\Product;
+use App\Models\Expense;
+use App\Models\Customer;
+use App\Models\Debt;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class InsightController extends Controller
 {
     public function index()
     {
         $today = Carbon::today();
+        $thisMonth = Carbon::now()->month;
+        $thisYear = Carbon::now()->year;
         
-        // Dynamically find a low stock product to advise restocking
+        // Low stock product
         $lowStockProduct = Product::where('stock', '<=', 10)->orderBy('stock', 'asc')->first();
         
-        // Count today's transactions to compare vs target
+        // Today's transactions
         $todayTransactionsCount = Transaction::whereDate('created_at', $today)->count();
-        $targetTransactions = 142; // arbitrary target for AI mock
-        $remainingTarget = max(0, $targetTransactions - $todayTransactionsCount);
+        $todayRevenue = Transaction::whereDate('created_at', $today)->sum('total_amount');
+        
+        // Monthly comparison
+        $thisMonthRevenue = Transaction::whereMonth('created_at', $thisMonth)
+                                       ->whereYear('created_at', $thisYear)
+                                       ->sum('total_amount');
+        $lastMonthRevenue = Transaction::whereMonth('created_at', Carbon::now()->subMonth()->month)
+                                       ->whereYear('created_at', Carbon::now()->subMonth()->year)
+                                       ->sum('total_amount');
+        $revenueChange = $lastMonthRevenue > 0 ? round((($thisMonthRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100, 1) : 0;
 
-        // Fetch a dynamic top-selling product for "Optimasi Stok" promo suggestion
+        // Top stocked product for promo suggestion
         $topProduct = Product::orderBy('stock', 'desc')->first();
 
+        // Total customers
+        $totalCustomers = Customer::count();
+        
+        // Overdue debts
+        $overdueDebts = Debt::where('status', '!=', 'Lunas')
+                           ->whereDate('due_date', '<', $today)
+                           ->count();
+
+        // Monthly expenses
+        $monthlyExpenses = Expense::whereMonth('created_at', $thisMonth)
+                                  ->whereYear('created_at', $thisYear)
+                                  ->sum('amount');
+
+        // Total products
+        $totalProducts = Product::count();
+
+        // Peak hour (most transactions in which hour)
+        $peakHour = Transaction::select(DB::raw('HOUR(created_at) as hour'), DB::raw('COUNT(*) as cnt'))
+            ->groupBy('hour')
+            ->orderByDesc('cnt')
+            ->first();
+
         return view('insights.index', compact(
-            'lowStockProduct',
-            'todayTransactionsCount',
-            'targetTransactions',
-            'remainingTarget',
-            'topProduct'
+            'lowStockProduct', 'todayTransactionsCount', 'todayRevenue',
+            'thisMonthRevenue', 'revenueChange', 'topProduct',
+            'totalCustomers', 'overdueDebts', 'monthlyExpenses',
+            'totalProducts', 'peakHour'
         ));
     }
 }
