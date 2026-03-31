@@ -1,0 +1,388 @@
+@import url('kasir.css');
+
+.insight-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--bg-light);
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 260px;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 2rem;
+}
+
+/* TOPBAR */
+.topbar {
+    background: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: #f1f5f9;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    width: 400px;
+}
+.search-box i { color: #94a3b8; margin-right: 10px; }
+.search-box input { border: none; background: transparent; outline: none; width: 100%; color: #334155; font-size: 0.95rem; }
+
+/* CONTENT AREA */
+.page-content {
+    padding: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #eff6ff;
+    color: #3b82f6;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 0.5rem 0;
+}
+
+.page-subtitle {
+    font-size: 0.95rem;
+    color: #64748b;
+    max-width: 600px;
+    line-height: 1.5;
+    margin-bottom: 2.5rem;
+}
+
+/* BENTO GRID */
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 1.5rem;
+}
+
+.bento-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+/* SPAN HELPERS */
+.col-span-2 { grid-column: span 2; }
+.col-span-1 { grid-column: span 1; }
+
+/* 1. PELUANG CARD */
+.peluang-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.peluang-header h2 { margin: 0 0 0.25rem 0; font-size: 1.25rem; font-weight: 800; color: #1e293b; }
+.peluang-header p { margin: 0; font-size: 0.85rem; color: #94a3b8; }
+
+.update-badge {
+    background: #0052cc;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.peluang-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.p-stat-item h5 {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 0.25rem 0;
+}
+
+.p-stat-item h3 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0052cc;
+    margin: 0 0 0.5rem 0;
+}
+.p-stat-item h3.dark { color: #1e293b; }
+
+.p-stat-sub {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #10b981;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.p-stat-sub.gray { color: #94a3b8; }
+
+.peluang-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.avatar-group {
+    display: flex;
+    align-items: center;
+}
+
+.avatar-item {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: #f1f5f9;
+    margin-left: -10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+    overflow: hidden;
+}
+.avatar-item img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-item.first { margin-left: 0; }
+.avatar-item.more { background: #3b82f6; }
+
+.btn-blue {
+    background: #0052cc;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 2. PERFORMA CARD */
+.performa-card {
+    background: #fef2f2;
+    border: 1px solid #fee2e2;
+}
+
+.icon-red-light {
+    width: 36px; height: 36px;
+    background: #fee2e2;
+    color: #ef4444;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.performa-card h3 { margin: 0 0 0.5rem 0; font-size: 1.1rem; color: #1e293b; }
+.performa-card p {
+    margin: 0; font-size: 0.85rem; color: #475569; line-height: 1.5;
+}
+.performa-card p strong { color: #ef4444; }
+
+.alert-text {
+    margin-top: auto;
+    color: #ef4444;
+    font-weight: 800;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 3. RESTOCK CARD */
+.icon-box-orange {
+    width: 36px; height: 36px;
+    background: #ffedd5;
+    color: #f97316;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.bento-card h3 { margin: 0 0 0.5rem 0; font-size: 1.1rem; font-weight: 800; color: #1e293b; }
+.bento-card p { margin: 0 0 1rem 0; font-size: 0.85rem; color: #64748b; line-height: 1.5; }
+.bento-card p strong { color: #1e293b; }
+.bento-card p .link-blue { color: #3b82f6; text-decoration: none; }
+
+.btn-outline {
+    margin-top: auto;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    background: white;
+    padding: 0.75rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+}
+
+/* 4. WAKTU CARD */
+.icon-box-blue {
+    width: 36px; height: 36px;
+    background: #e0e7ff;
+    color: #4338ca;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.mini-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 60px;
+    margin-top: auto;
+}
+
+.m-bar {
+    flex: 1;
+    background: #f1f5f9;
+    border-radius: 4px 4px 0 0;
+}
+
+.m-bar.active { background: #0052cc; }
+
+/* 5. OPTIMASI CARD (BLUE SOLID) */
+.optimasi-card {
+    background: #0052cc;
+    color: white;
+    box-shadow: 0 10px 25px -5px rgba(0, 82, 204, 0.4);
+}
+
+.saran-ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #fde047;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+}
+
+.optimasi-card h3 { color: white; }
+.optimasi-card p { color: rgba(255, 255, 255, 0.9); }
+.optimasi-card p u { font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+
+.btn-white {
+    margin-top: auto;
+    background: white;
+    color: #0052cc;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+}
+
+/* 6. SENTIMEN CARD */
+.sentimen-card h2 { margin: 0 0 1rem 0; font-size: 1.5rem; font-weight: 800; color: #1e293b; }
+.sentimen-card p { font-size: 1.05rem; color: #475569; line-height: 1.6; max-width: 90%; margin: 0 0 1.5rem 0; }
+.sentimen-card p strong { color: #1e293b; }
+
+.mood-badges {
+    display: flex;
+    gap: 1rem;
+    margin-top: auto;
+}
+
+.mood-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    border: 1px solid #f1f5f9;
+}
+.mood-badge.happy { color: #10b981; }
+.mood-badge.neutral { color: #f59e0b; }
+
+/* 7. EKSPANSI CARD */
+.ekspansi-card {
+    align-items: center;
+    text-align: center;
+}
+
+.icon-box-rocket {
+    width: 48px; height: 48px;
+    background: #eff6ff;
+    color: #0052cc;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.ekspansi-card h3 { font-size: 1.1rem; }
+.ekspansi-card p { font-size: 0.8rem; }
+
+/* FLOATING WIDGET */
+.ai-float-widget {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: white;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid #f1f5f9;
+    z-index: 100;
+    cursor: pointer;
+}
+
+.ai-float-icon {
+    width: 36px; height: 36px;
+    background: #0052cc;
+    color: white;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.ai-float-text h5 { margin: 0; font-size: 0.65rem; font-weight: 800; color: #64748b; letter-spacing: 0.5px; }
+.ai-float-text p { margin: 0; font-size: 0.85rem; font-weight: 700; color: #1e293b; }
+
+.ai-float-arrow { color: #0052cc; margin-left: auto; }

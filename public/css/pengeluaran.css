@@ -1,0 +1,363 @@
+@import url('kasir.css');
+
+.pengeluaran-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--bg-light);
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 260px;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 2rem;
+}
+
+/* TOPBAR */
+.topbar {
+    background: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: #f1f5f9;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    width: 400px;
+}
+
+.search-box i { color: #94a3b8; margin-right: 10px; }
+.search-box input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    color: #334155;
+    font-size: 0.95rem;
+}
+
+/* CONTENT AREA */
+.page-content {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.page-subtitle {
+    font-size: 0.95rem;
+    color: #64748b;
+}
+
+.btn-primary {
+    background: #0052cc;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+/* DASHBOARD WIDGETS */
+.widget-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.widget-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.widget-chip {
+    background: #f0f7ff;
+    color: #0052cc;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.widget-title-small {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+}
+
+.widget-amount-flex {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.widget-amount {
+    font-size: 2.75rem;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1;
+}
+
+.widget-trend {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding-bottom: 4px;
+}
+
+.budget-indicators {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.budget-indicators span {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.budget-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    gap: 4px;
+}
+
+.budget-fill {
+    height: 100%;
+    background: #0052cc;
+    border-radius: 6px;
+    flex: 0 0 45%; /* Dummy 45% */
+}
+.budget-fill-2 {
+    height: 100%;
+    background: #cbd5e1;
+    border-radius: 6px;
+    flex: 0 0 15%; /* Dummy Secondary Fill */
+}
+
+/* BLUE CARD */
+.widget-card-blue {
+    background: #0052cc;
+    color: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 82, 204, 0.4);
+    display: flex;
+    flex-direction: column;
+}
+
+.icon-top-blue {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+}
+
+.widget-card-blue h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+}
+
+.widget-card-blue p {
+    font-size: 0.85rem;
+    opacity: 0.85;
+    margin: 0 0 1rem 0;
+    line-height: 1.4;
+}
+
+.widget-card-blue h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0 0 0.25rem 0;
+}
+
+.widget-card-blue .cat-tag {
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+/* TABLE SECTION */
+.table-container {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.table-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.table-header-flex h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.table-tools {
+    display: flex;
+    gap: 1rem;
+    color: #94a3b8;
+}
+.table-tools i { cursor: pointer; }
+.table-tools i:hover { color: #475569; }
+
+.expenses-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.expenses-table th {
+    text-align: left;
+    padding: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.expenses-table td {
+    padding: 1.25rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.date-val {
+    color: #64748b;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.desc-val {
+    font-weight: 700;
+    color: #1e293b;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.invoice-val {
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.cat-pill {
+    background: #f0f7ff;
+    color: #0052cc;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.cat-pill.sewa { background: #ffedd5; color: #c2410c; }
+.cat-pill.gaji { background: #e0e7ff; color: #4338ca; }
+
+.amount-val {
+    font-weight: 800;
+    color: #ef4444;
+    font-size: 1.05rem;
+}
+
+.pagination-area {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    padding-top: 1.5rem;
+    margin-top: 1rem;
+}
+
+/* HEALTH SCORE FLOATING WIDGET */
+.health-score-widget {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: white;
+    border-radius: 100px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid #f1f5f9;
+    z-index: 100;
+}
+
+.health-icon {
+    width: 40px;
+    height: 40px;
+    background: #0052cc;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.health-text h5 {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 2px 0;
+}
+
+.health-text p {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+}
