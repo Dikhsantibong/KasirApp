@@ -17,6 +17,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/kasir', [\App\Http\Controllers\KasirController::class, 'store'])->name('kasir.store');
     Route::get('/produk', [\App\Http\Controllers\ProductController::class, 'index'])->name('produk.index');
     Route::post('/produk', [\App\Http\Controllers\ProductController::class, 'store'])->name('produk.store');
+    Route::post('/produk/category', [\App\Http\Controllers\ProductController::class, 'storeCategory'])->name('produk.category.store');
     Route::put('/produk/{id}', [\App\Http\Controllers\ProductController::class, 'update'])->name('produk.update');
     Route::delete('/produk/{id}', [\App\Http\Controllers\ProductController::class, 'destroy'])->name('produk.destroy');
     Route::get('/transaksi', [\App\Http\Controllers\TransactionController::class, 'index'])->name('transaksi.index');

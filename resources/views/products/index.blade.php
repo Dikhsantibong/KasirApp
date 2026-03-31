@@ -90,6 +90,9 @@
                     <p class="page-subtitle">Kelola inventaris barang dan pantau ketersediaan stok secara real-time.</p>
                 </div>
                 <div class="header-actions">
+                    <button class="btn-outline" onclick="openCategoryModal()" style="border:1px solid #0052cc; color:#0052cc; cursor:pointer;">
+                        <i class="fas fa-folder-plus"></i> Tambah Kategori
+                    </button>
                     <a href="#" class="btn-outline">
                         <i class="fas fa-file-import"></i> Impor Excel
                     </a>
@@ -340,6 +343,24 @@
     </div>
 </div>
 
+<!-- ADD CATEGORY MODAL -->
+<div class="modal-overlay" id="categoryModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2><i class="fas fa-folder-plus" style="color:#0052cc; margin-right:8px;"></i> Tambah Kategori Baru</h2>
+            <button class="modal-close" onclick="closeCategoryModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <form action="{{ route('produk.category.store') }}" method="POST">
+            @csrf
+            <div class="form-group">
+                <label class="form-label">Nama Kategori *</label>
+                <input type="text" name="name" class="form-input" placeholder="Contoh: Snack, Minuman, Sembako" required>
+            </div>
+            <button type="submit" class="btn-submit"><i class="fas fa-save" style="margin-right:8px;"></i> Simpan Kategori</button>
+        </form>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -357,6 +378,10 @@
     // === ADD MODAL ===
     function openAddModal() { document.getElementById('addModal').classList.add('show'); }
     function closeAddModal() { document.getElementById('addModal').classList.remove('show'); }
+
+    // === CATEGORY MODAL ===
+    function openCategoryModal() { document.getElementById('categoryModal').classList.add('show'); }
+    function closeCategoryModal() { document.getElementById('categoryModal').classList.remove('show'); }
 
     // === EDIT MODAL ===
     function openEditModal(id, name, catId, barcode, cost, price, stock, minStock) {

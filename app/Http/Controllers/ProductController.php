@@ -86,4 +86,19 @@ class ProductController extends Controller
 
         return redirect()->route('produk.index')->with('success', 'Produk berhasil dihapus!');
     }
+
+    public function storeCategory(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:100',
+        ]);
+
+        \App\Models\Category::create([
+            'id' => \Illuminate\Support\Str::uuid()->toString(),
+            'name' => $request->name,
+            // 'store_id' is nullable in the DB schema, so we can skip it or handle if needed.
+        ]);
+
+        return redirect()->route('produk.index')->with('success', 'Kategori baru berhasil ditambahkan!');
+    }
 }
