@@ -13,6 +13,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+    Route::get('/kasir', [\App\Http\Controllers\KasirController::class, 'index'])->name('kasir.index');
+    Route::get('/produk', [\App\Http\Controllers\ProductController::class, 'index'])->name('produk.index');
 });
 
 

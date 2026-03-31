@@ -11,15 +11,15 @@
         </div>
 
         <nav class="nav-menu">
-            <a href="#" class="nav-link active">
+            <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <i class="fas fa-th-large"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="#" class="nav-link">
+            <a href="{{ route('kasir.index') }}" class="nav-link {{ request()->routeIs('kasir.index') ? 'active' : '' }}">
                 <i class="fas fa-cash-register"></i>
                 <span>Kasir</span>
             </a>
-            <a href="#" class="nav-link">
+            <a href="{{ route('produk.index') }}" class="nav-link {{ request()->routeIs('produk.index') ? 'active' : '' }}">
                 <i class="fas fa-box"></i>
                 <span>Produk</span>
             </a>
