@@ -14,7 +14,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
     Route::get('/kasir', [\App\Http\Controllers\KasirController::class, 'index'])->name('kasir.index');
+    Route::post('/kasir', [\App\Http\Controllers\KasirController::class, 'store'])->name('kasir.store');
     Route::get('/produk', [\App\Http\Controllers\ProductController::class, 'index'])->name('produk.index');
+    Route::post('/produk', [\App\Http\Controllers\ProductController::class, 'store'])->name('produk.store');
+    Route::put('/produk/{id}', [\App\Http\Controllers\ProductController::class, 'update'])->name('produk.update');
+    Route::delete('/produk/{id}', [\App\Http\Controllers\ProductController::class, 'destroy'])->name('produk.destroy');
     Route::get('/transaksi', [\App\Http\Controllers\TransactionController::class, 'index'])->name('transaksi.index');
     Route::get('/pembelian', [\App\Http\Controllers\PurchaseController::class, 'index'])->name('pembelian.index');
     Route::get('/stock', [\App\Http\Controllers\StockController::class, 'index'])->name('stock.index');

@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\User;
+use App\Models\TransactionItem;
+use App\Models\Customer;
 
 class Transaction extends Model
 {
@@ -17,5 +19,15 @@ class Transaction extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function items()
+    {
+        return $this->hasMany(TransactionItem::class, 'transaction_id', 'id');
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'customer_id', 'id');
     }
 }

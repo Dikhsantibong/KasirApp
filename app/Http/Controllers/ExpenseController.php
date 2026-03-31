@@ -15,24 +15,23 @@ class ExpenseController extends Controller
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
 
-        // Total pengeluaran bulan ini
-        $totalMonth = Expense::whereMonth('expense_date', $currentMonth)
-            ->whereYear('expense_date', $currentYear)
+        // Total pengeluaran bulan ini (use created_at, the actual column)
+        $totalMonth = Expense::whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentYear)
             ->sum('amount');
 
-        // Pengeluaran "Terbanyak" berdasarkan Kategori untuk UI card
-        $topExpense = Expense::select('category', DB::raw('SUM(amount) as total_amount'), DB::raw('MAX(description) as sample_desc'))
-            ->whereMonth('expense_date', $currentMonth)
-            ->whereYear('expense_date', $currentYear)
-            ->groupBy('category')
+        // Pengeluaran "Terbanyak" — since there's no category column, group by name
+        $topExpense = Expense::select('name', DB::raw('SUM(amount) as total_amount'))
+            ->whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentYear)
+            ->groupBy('name')
             ->orderByDesc('total_amount')
             ->first();
 
         // Paginated History
-        $query = Expense::orderBy('expense_date', 'desc');
+        $query = Expense::orderBy('created_at', 'desc');
         if ($request->has('search') && $request->search != '') {
-            $query->where('description', 'like', '%' . $request->search . '%')
-                  ->orWhere('category', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%' . $request->search . '%');
         }
         $expenses = $query->paginate(12);
 

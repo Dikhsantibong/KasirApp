@@ -66,9 +66,9 @@
                 <div class="widget-card-blue">
                     <div class="icon-top-blue"><i class="fas fa-receipt"></i></div>
                     <h3>Terbanyak</h3>
-                    <p>Bulan ini pengeluaran didominasi oleh {{ $topExpense->sample_desc ?? 'Gaji Karyawan' }}.</p>
+                    <p>Bulan ini pengeluaran didominasi oleh {{ $topExpense->name ?? 'Gaji Karyawan' }}.</p>
                     <h1>Rp {{ number_format($topExpense->total_amount ?? 2500000, 0, ',', '.') }}</h1>
-                    <div class="cat-tag">Kategori: {{ ucfirst($topExpense->category ?? 'Gaji') }}</div>
+                    <div class="cat-tag">Pengeluaran Utama</div>
                 </div>
             </div>
 
@@ -93,19 +93,13 @@
                     </thead>
                     <tbody>
                         @forelse($expenses as $e)
-                            @php
-                                $catLower = strtolower($e->category);
-                                $catClass = '';
-                                if($catLower == 'sewa') $catClass = 'sewa';
-                                elseif($catLower == 'gaji') $catClass = 'gaji';
-                            @endphp
                             <tr>
-                                <td><span class="date-val">{{ \Carbon\Carbon::parse($e->expense_date)->format('d M Y') }}</span></td>
+                                <td><span class="date-val">{{ \Carbon\Carbon::parse($e->created_at)->format('d M Y') }}</span></td>
                                 <td>
-                                    <span class="desc-val">{{ $e->description ?? '-' }}</span>
-                                    <span class="invoice-val">Invoice: #EXP-{{ substr($e->id, 0, 4) }}</span>
+                                    <span class="desc-val">{{ $e->name ?? '-' }}</span>
+                                    <span class="invoice-val">Invoice: #EXP-{{ strtoupper(substr($e->id, 0, 4)) }}</span>
                                 </td>
-                                <td><span class="cat-pill {{ $catClass }}">{{ ucfirst($e->category ?? 'Umum') }}</span></td>
+                                <td><span class="cat-pill">Operasional</span></td>
                                 <td><span class="amount-val">Rp {{ number_format($e->amount, 0, ',', '.') }}</span></td>
                             </tr>
                         @empty

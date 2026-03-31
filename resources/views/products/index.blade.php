@@ -4,19 +4,65 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/produk.css') }}">
+    <style>
+        /* MODAL */
+        .modal-overlay {
+            position: fixed; top:0; left:0; right:0; bottom:0;
+            background: rgba(0,0,0,0.5); z-index: 9998;
+            display: none; align-items: center; justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-card {
+            background: white; border-radius: 20px; padding: 2rem;
+            width: 520px; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn { from { transform: translateY(30px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+        .modal-header h2 { font-size:1.3rem; font-weight:800; color:#1e293b; margin:0; }
+        .modal-close { background:none; border:none; font-size:1.25rem; color:#94a3b8; cursor:pointer; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label { display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.5px; }
+        .form-input, .form-select {
+            width:100%; padding:0.75rem 1rem; border:1px solid #e2e8f0;
+            border-radius:10px; font-size:0.95rem; color:#1e293b;
+            transition: border 0.2s;
+        }
+        .form-input:focus, .form-select:focus { outline:none; border-color:#0052cc; box-shadow: 0 0 0 3px rgba(0,82,204,0.1); }
+        .form-row { display:grid; grid-template-columns: 1fr 1fr; gap:1rem; }
+        .btn-submit {
+            width:100%; background:#0052cc; color:white; border:none;
+            padding:0.85rem; border-radius:10px; font-weight:700; font-size:0.95rem;
+            cursor:pointer; margin-top:0.5rem;
+        }
+        .btn-submit:hover { background:#003d99; }
+        /* TOAST */
+        .toast { position:fixed; top:1.5rem; right:1.5rem; z-index:9999; background:#10b981; color:white; padding:1rem 1.5rem; border-radius:12px; font-weight:600; font-size:0.9rem; box-shadow:0 10px 25px -5px rgba(16,185,129,0.4); transform:translateX(120%); transition:transform 0.4s; }
+        .toast.show { transform:translateX(0); }
+        .toast.error { background:#ef4444; box-shadow:0 10px 25px -5px rgba(239,68,68,0.4); }
+        /* ACTION DROPDOWN */
+        .action-dropdown { position:relative; display:inline-block; }
+        .action-menu { display:none; position:absolute; right:0; top:100%; background:white; border-radius:10px; box-shadow:0 10px 25px -5px rgba(0,0,0,0.15); min-width:160px; z-index:50; overflow:hidden; border:1px solid #f1f5f9; }
+        .action-menu.show { display:block; }
+        .action-menu-item { display:flex; align-items:center; gap:8px; padding:0.75rem 1rem; font-size:0.85rem; font-weight:600; cursor:pointer; color:#475569; transition:background 0.15s; border:none; background:none; width:100%; text-align:left; }
+        .action-menu-item:hover { background:#f8fafc; }
+        .action-menu-item.danger { color:#ef4444; }
+        .action-menu-item.danger:hover { background:#fef2f2; }
+    </style>
 @endpush
 
 @section('content')
 <div class="product-layout">
    <x-sidebar />
 
-    <!-- MAIN CONTENT -->
     <main class="main-content">
-        <!-- Top Header -->
         <header class="topbar">
             <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Cari Produk...">
+                <form action="{{ route('produk.index') }}" method="GET" style="width:100%;">
+                    <input type="text" name="search" placeholder="Cari Produk..." value="{{ request('search') }}">
+                </form>
             </div>
 
             <div class="topbar-actions">
@@ -24,22 +70,20 @@
                     <i class="fas fa-sync-alt" style="margin-right:4px;"></i>
                     <span>Sinkronisasi Berhasil</span>
                 </div>
-                <div style="font-size: 1.25rem; color: #5e6c84; position: relative; cursor: pointer;">
+                <div style="font-size: 1.25rem; color: #5e6c84; cursor: pointer;">
                     <i class="far fa-bell"></i>
                 </div>
-                <!-- Mini profile matching screenshot -->
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div style="text-align:right;">
-                        <span style="display:block; font-weight:700; font-size:0.85rem; color:#1e293b;">Admin Toko</span>
+                        <span style="display:block; font-weight:700; font-size:0.85rem; color:#1e293b;">{{ auth()->user()->name ?? 'Admin Toko' }}</span>
                         <span style="display:block; font-size:0.75rem; color:#64748b;">Premium Plan</span>
                     </div>
-                    <img src="https://ui-avatars.com/api/?name=Admin+Toko&background=0D8ABC&color=fff" class="user-thumb" alt="User" style="width:36px; height:36px;">
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'Admin') }}&background=0D8ABC&color=fff" class="user-thumb" alt="User" style="width:36px; height:36px;">
                 </div>
             </div>
         </header>
 
         <div class="page-content">
-            <!-- PAGE HEADER -->
             <div class="page-header">
                 <div>
                     <h1 class="page-title">Daftar Produk</h1>
@@ -49,15 +93,14 @@
                     <a href="#" class="btn-outline">
                         <i class="fas fa-file-import"></i> Impor Excel
                     </a>
-                    <a href="#" class="btn-primary">
+                    <button class="btn-primary" onclick="openAddModal()">
                         <i class="fas fa-plus"></i> Tambah Produk
-                    </a>
+                    </button>
                 </div>
             </div>
 
             <!-- CARDS ROW -->
             <div class="summary-cards-row">
-                <!-- Warning Card -->
                 <div class="warning-card">
                     <div class="card-header-flex">
                         <div class="card-title-danger">
@@ -65,68 +108,29 @@
                         </div>
                         <a href="#" class="btn-link">Lihat Semua</a>
                     </div>
-                    <!-- the dynamic count below could be $lowStockProducts->count() but we match the design -->
-                    <p class="warning-subtitle">{{ collect($lowStockProducts ?? [])->count() ?: 4 }} produk memerlukan restock segera untuk menghindari kekosongan.</p>
-                    
+                    <p class="warning-subtitle">{{ collect($lowStockProducts)->count() }} produk memerlukan restock segera.</p>
                     <div class="low-stock-grid">
                         @forelse($lowStockProducts as $low)
                             <div class="low-stock-item">
-                                <div class="low-stock-icon">
-                                    <i class="fas fa-box-open"></i>
-                                </div>
+                                <div class="low-stock-icon"><i class="fas fa-box-open"></i></div>
                                 <div class="low-stock-details">
                                     <h4>{{ $low->name }}</h4>
-                                    <p>
-                                        <span>Sisa: <span class="text-danger">{{ $low->stock }} Pcs</span></span>
-                                        <span>Min: {{ $low->min_stock }}</span>
-                                    </p>
+                                    <p><span>Sisa: <span class="text-danger">{{ $low->stock }} Pcs</span></span> <span>Min: {{ $low->min_stock }}</span></p>
                                 </div>
                             </div>
                         @empty
-                            <!-- Dummy Data matching image if DB has no low stocks -->
-                            <div class="low-stock-item">
-                                <div class="low-stock-icon">
-                                    <i class="fas fa-box"></i>
-                                </div>
-                                <div class="low-stock-details">
-                                    <h4>Kopi Arabica Gayo 250g</h4>
-                                    <p>
-                                        <span>Sisa: <span class="text-danger">2 Pcs</span></span>
-                                        <span>Min: 10</span>
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="low-stock-item">
-                                <div class="low-stock-icon">
-                                    <i class="fas fa-box"></i>
-                                </div>
-                                <div class="low-stock-details">
-                                    <h4>Susu UHT Full Cream 1L</h4>
-                                    <p>
-                                        <span>Sisa: <span class="text-danger">0 Pcs</span></span>
-                                        <span>Min: 5</span>
-                                    </p>
-                                </div>
+                            <div style="text-align:center; color:#94a3b8; padding:1rem; grid-column: 1 / -1;">
+                                <i class="fas fa-check-circle" style="color:#10b981; margin-right:6px;"></i> Semua stok aman.
                             </div>
                         @endforelse
                     </div>
                 </div>
 
-                <!-- Info Card -->
                 <div class="info-card">
-                    <div class="info-card-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
+                    <div class="info-card-icon"><i class="fas fa-chart-line"></i></div>
                     <div class="info-subtitle">Total Nilai Inventaris</div>
-                    <!-- the actual calculation rounded or formatted nicely, fallback to static if DB is 0 -->
-                    @php
-                       $val = $totalInventoryValue ?? 0;
-                       $formattedVal = $val > 0 ? 'Rp ' . number_format($val, 0, ',', '.') : 'Rp 142,5M';
-                    @endphp
-                    <div class="info-value">{{ $formattedVal }}</div>
-                    <div class="info-trend">
-                        <i class="fas fa-arrow-up"></i> +12% dari bulan lalu
-                    </div>
+                    <div class="info-value">Rp {{ number_format($totalInventoryValue, 0, ',', '.') }}</div>
+                    <div class="info-trend"><i class="fas fa-arrow-up"></i> Total dari seluruh produk</div>
                 </div>
             </div>
 
@@ -134,27 +138,11 @@
             <div class="table-container">
                 <div class="table-controls">
                     <div class="filters">
-                        <select class="filter-select">
-                            <option>Semua Kategori</option>
-                            <option>Minuman</option>
-                            <option>Makanan</option>
-                            <option>Kebutuhan Pokok</option>
-                        </select>
-                        <select class="filter-select">
-                            <option>Status: Semua</option>
-                            <option>Tersedia</option>
-                            <option>Stok Menipis</option>
-                            <option>Habis</option>
-                        </select>
+                        <form action="{{ route('produk.index') }}" method="GET" style="display:flex; gap:1rem;">
+                            <input type="text" name="search" placeholder="Filter nama produk..." value="{{ request('search') }}" class="filter-select" style="border:1px solid #e2e8f0; padding:0.5rem 1rem; border-radius:8px;">
+                        </form>
                     </div>
-                    <div class="sort-text">
-                        Urutkan: 
-                        <select class="sort-select">
-                            <option>Nama Produk &darr;</option>
-                            <option>Stok Tertinggi</option>
-                            <option>Harga Termurah</option>
-                        </select>
-                    </div>
+                    <div class="sort-text">Total: <strong>{{ $products->total() }} produk</strong></div>
                 </div>
 
                 <table class="products-table">
@@ -163,6 +151,7 @@
                             <th>GAMBAR</th>
                             <th>NAMA PRODUK</th>
                             <th>KATEGORI</th>
+                            <th>HARGA BELI</th>
                             <th>HARGA JUAL</th>
                             <th>STOK</th>
                             <th>STATUS</th>
@@ -172,107 +161,241 @@
                     <tbody>
                         @forelse($products as $product)
                             @php
-                                $statusClass = 'status-available';
-                                $statusText = 'Tersedia';
-                                if($product->stock <= 0) {
-                                    $statusClass = 'status-empty';
-                                    $statusText = 'Habis';
-                                } elseif($product->stock <= $product->min_stock) {
-                                    $statusClass = 'status-low';
-                                    $statusText = 'Stok Menipis';
-                                }
+                                $statusClass = 'status-available'; $statusText = 'Tersedia';
+                                if($product->stock <= 0) { $statusClass = 'status-empty'; $statusText = 'Habis'; }
+                                elseif($product->stock <= ($product->min_stock ?: 5)) { $statusClass = 'status-low'; $statusText = 'Stok Menipis'; }
                             @endphp
                             <tr>
-                                <td>
-                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($product->name) }}&background=random&color=fff&size=50" class="product-img" alt="IMG">
-                                </td>
+                                <td><img src="https://ui-avatars.com/api/?name={{ urlencode($product->name) }}&background=random&color=fff&size=50" class="product-img" alt="IMG"></td>
                                 <td class="product-info-cell">
                                     <h4>{{ $product->name }}</h4>
-                                    <p>{{ $product->barcode ?? 'SKU-' . rand(1000, 9999) }}</p>
+                                    <p>{{ $product->barcode ?? '-' }}</p>
                                 </td>
                                 <td><span class="category-badge">{{ $product->category->name ?? 'Uncategorized' }}</span></td>
+                                <td class="price-text">Rp {{ number_format($product->cost_price ?? 0, 0, ',', '.') }}</td>
                                 <td class="price-text">Rp {{ number_format($product->selling_price, 0, ',', '.') }}</td>
-                                <!-- dynamic stock color -->
-                                <td class="stock-text {{ $product->stock <= $product->min_stock ? 'danger' : '' }}">{{ $product->stock }} Pcs</td>
+                                <td class="stock-text {{ $product->stock <= ($product->min_stock ?: 5) ? 'danger' : '' }}">{{ $product->stock }} Pcs</td>
                                 <td><span class="status-badge {{ $statusClass }}">{{ $statusText }}</span></td>
                                 <td style="text-align:center;">
-                                    <button class="action-btn"><i class="fas fa-ellipsis-v"></i></button>
+                                    <div class="action-dropdown">
+                                        <button class="action-btn" onclick="toggleMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
+                                        <div class="action-menu">
+                                            <button class="action-menu-item" onclick="openEditModal('{{ $product->id }}', '{{ addslashes($product->name) }}', '{{ $product->category_id }}', '{{ $product->barcode }}', {{ $product->cost_price ?? 0 }}, {{ $product->selling_price }}, {{ $product->stock }}, {{ $product->min_stock ?? 0 }})">
+                                                <i class="fas fa-edit"></i> Edit Produk
+                                            </button>
+                                            <form action="{{ route('produk.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus produk ini?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="action-menu-item danger">
+                                                    <i class="fas fa-trash"></i> Hapus Produk
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
-                            <!-- Dummy Data matching screenshot if DB is empty -->
                             <tr>
-                                <td><img src="https://images.unsplash.com/photo-1559525839-b184a4d698c7?ixlib=rb-1.2.1&auto=format&fit=crop&w=64&q=80" class="product-img" alt="IMG"></td>
-                                <td class="product-info-cell">
-                                    <h4>Cold Brew Coffee 250ml</h4>
-                                    <p>SKU-2023-001</p>
+                                <td colspan="8" style="text-align:center; padding: 3rem; color:#94a3b8;">
+                                    <i class="fas fa-box-open" style="font-size:2.5rem; opacity:0.2; display:block; margin-bottom:1rem;"></i>
+                                    Belum ada produk. Klik <strong>"Tambah Produk"</strong> untuk memulai.
                                 </td>
-                                <td><span class="category-badge">Minuman</span></td>
-                                <td class="price-text">Rp 35.000</td>
-                                <td class="stock-text">42 Pcs</td>
-                                <td><span class="status-badge status-available">Tersedia</span></td>
-                                <td style="text-align:center;"><button class="action-btn"><i class="fas fa-ellipsis-v"></i></button></td>
-                            </tr>
-                            <tr>
-                                <td><img src="https://images.unsplash.com/photo-1611162458324-aae1eb4129a4?ixlib=rb-1.2.1&auto=format&fit=crop&w=64&q=80" class="product-img" alt="IMG"></td>
-                                <td class="product-info-cell">
-                                    <h4>Kopi Arabica Gayo 250g</h4>
-                                    <p>SKU-2023-002</p>
-                                </td>
-                                <td><span class="category-badge">Minuman</span></td>
-                                <td class="price-text">Rp 85.000</td>
-                                <td class="stock-text danger">2 Pcs</td>
-                                <td><span class="status-badge status-low">Stok Menipis</span></td>
-                                <td style="text-align:center;"><button class="action-btn"><i class="fas fa-ellipsis-v"></i></button></td>
-                            </tr>
-                            <tr>
-                                <td><img src="https://images.unsplash.com/photo-1550583724-b2692b85b150?ixlib=rb-1.2.1&auto=format&fit=crop&w=64&q=80" class="product-img" alt="IMG"></td>
-                                <td class="product-info-cell">
-                                    <h4>Susu UHT Full Cream 1L</h4>
-                                    <p>SKU-2023-003</p>
-                                </td>
-                                <td><span class="category-badge">Minuman</span></td>
-                                <td class="price-text">Rp 22.500</td>
-                                <td class="stock-text danger">0 Pcs</td>
-                                <td><span class="status-badge status-empty">Habis</span></td>
-                                <td style="text-align:center;"><button class="action-btn"><i class="fas fa-ellipsis-v"></i></button></td>
-                            </tr>
-                            <tr>
-                                <td><img src="https://images.unsplash.com/photo-1627582236592-7489679de50e?ixlib=rb-1.2.1&auto=format&fit=crop&w=64&q=80" class="product-img" alt="IMG"></td>
-                                <td class="product-info-cell">
-                                    <h4>Tepung Terigu Serbaguna 1kg</h4>
-                                    <p>SKU-2023-004</p>
-                                </td>
-                                <td><span class="category-badge">Kebutuhan Pokok</span></td>
-                                <td class="price-text">Rp 15.000</td>
-                                <td class="stock-text">128 Pcs</td>
-                                <td><span class="status-badge status-available">Tersedia</span></td>
-                                <td style="text-align:center;"><button class="action-btn"><i class="fas fa-ellipsis-v"></i></button></td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
 
-                <!-- Pagination matching screenshot -->
                 <div class="pagination-area">
-                    <div class="pagination-info">Menampilkan {{ count($products ?? []) > 0 ? (($products->currentPage()-1)*$products->perPage()+1) . '-' . min($products->currentPage()*$products->perPage(), $products->total()) . ' dari ' . $products->total() : '1-10 dari 248' }} produk</div>
+                    <div class="pagination-info">
+                        Menampilkan {{ ($products->currentPage()-1)*$products->perPage()+1 }}-{{ min($products->currentPage()*$products->perPage(), $products->total()) }} dari {{ $products->total() }} produk
+                    </div>
                     <div class="pagination-controls">
-                        <a href="#" class="page-btn"><i class="fas fa-chevron-left"></i></a>
-                        <a href="#" class="page-btn active">1</a>
-                        <a href="#" class="page-btn">2</a>
-                        <a href="#" class="page-btn">3</a>
-                        <a href="#" class="page-btn"><i class="fas fa-chevron-right"></i></a>
+                        @if($products->onFirstPage())
+                            <span class="page-btn" style="opacity:0.4;"><i class="fas fa-chevron-left"></i></span>
+                        @else
+                            <a href="{{ $products->previousPageUrl() }}" class="page-btn"><i class="fas fa-chevron-left"></i></a>
+                        @endif
+                        @foreach($products->getUrlRange(1, $products->lastPage()) as $page => $url)
+                            <a href="{{ $url }}" class="page-btn {{ $products->currentPage() == $page ? 'active' : '' }}">{{ $page }}</a>
+                        @endforeach
+                        @if($products->hasMorePages())
+                            <a href="{{ $products->nextPageUrl() }}" class="page-btn"><i class="fas fa-chevron-right"></i></a>
+                        @else
+                            <span class="page-btn" style="opacity:0.4;"><i class="fas fa-chevron-right"></i></span>
+                        @endif
                     </div>
                 </div>
             </div>
-            
         </div>
     </main>
 </div>
 
-<!-- Floating support button -->
-<div class="floating-action">
-    <i class="fas fa-headset"></i>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ADD PRODUCT MODAL -->
+<div class="modal-overlay" id="addModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2><i class="fas fa-plus-circle" style="color:#0052cc; margin-right:8px;"></i> Tambah Produk Baru</h2>
+            <button class="modal-close" onclick="closeAddModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <form action="{{ route('produk.store') }}" method="POST">
+            @csrf
+            <div class="form-group">
+                <label class="form-label">Nama Produk *</label>
+                <input type="text" name="name" class="form-input" placeholder="Contoh: Kopi Arabika 250g" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Kategori *</label>
+                    <select name="category_id" class="form-select" required>
+                        <option value="">Pilih Kategori</option>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Barcode / SKU</label>
+                    <input type="text" name="barcode" class="form-input" placeholder="Opsional">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Harga Beli (Rp) *</label>
+                    <input type="number" name="cost_price" class="form-input" placeholder="0" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Harga Jual (Rp) *</label>
+                    <input type="number" name="selling_price" class="form-input" placeholder="0" min="0" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Stok Awal *</label>
+                    <input type="number" name="stock" class="form-input" placeholder="0" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Stok Minimum *</label>
+                    <input type="number" name="min_stock" class="form-input" placeholder="5" min="0" required>
+                </div>
+            </div>
+            <button type="submit" class="btn-submit"><i class="fas fa-save" style="margin-right:8px;"></i> Simpan Produk</button>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT PRODUCT MODAL -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2><i class="fas fa-edit" style="color:#f59e0b; margin-right:8px;"></i> Edit Produk</h2>
+            <button class="modal-close" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <form id="editForm" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="form-group">
+                <label class="form-label">Nama Produk *</label>
+                <input type="text" name="name" id="edit-name" class="form-input" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Kategori *</label>
+                    <select name="category_id" id="edit-category" class="form-select" required>
+                        <option value="">Pilih Kategori</option>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Barcode / SKU</label>
+                    <input type="text" name="barcode" id="edit-barcode" class="form-input">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Harga Beli (Rp) *</label>
+                    <input type="number" name="cost_price" id="edit-cost" class="form-input" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Harga Jual (Rp) *</label>
+                    <input type="number" name="selling_price" id="edit-price" class="form-input" min="0" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Stok *</label>
+                    <input type="number" name="stock" id="edit-stock" class="form-input" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Stok Minimum *</label>
+                    <input type="number" name="min_stock" id="edit-minstock" class="form-input" min="0" required>
+                </div>
+            </div>
+            <button type="submit" class="btn-submit" style="background:#f59e0b;"><i class="fas fa-save" style="margin-right:8px;"></i> Update Produk</button>
+        </form>
+    </div>
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    // === TOAST ===
+    @if(session('success'))
+        document.addEventListener('DOMContentLoaded', () => {
+            const t = document.getElementById('toast');
+            t.textContent = '{{ session("success") }}';
+            t.className = 'toast show';
+            setTimeout(() => t.className = 'toast', 3000);
+        });
+    @endif
+
+    // === ADD MODAL ===
+    function openAddModal() { document.getElementById('addModal').classList.add('show'); }
+    function closeAddModal() { document.getElementById('addModal').classList.remove('show'); }
+
+    // === EDIT MODAL ===
+    function openEditModal(id, name, catId, barcode, cost, price, stock, minStock) {
+        // Close any open action menus
+        document.querySelectorAll('.action-menu').forEach(m => m.classList.remove('show'));
+
+        document.getElementById('editForm').action = '/produk/' + id;
+        document.getElementById('edit-name').value = name;
+        document.getElementById('edit-category').value = catId;
+        document.getElementById('edit-barcode').value = barcode;
+        document.getElementById('edit-cost').value = cost;
+        document.getElementById('edit-price').value = price;
+        document.getElementById('edit-stock').value = stock;
+        document.getElementById('edit-minstock').value = minStock;
+        document.getElementById('editModal').classList.add('show');
+    }
+    function closeEditModal() { document.getElementById('editModal').classList.remove('show'); }
+
+    // === ACTION DROPDOWN ===
+    function toggleMenu(btn) {
+        // Close all first
+        document.querySelectorAll('.action-menu').forEach(m => m.classList.remove('show'));
+        btn.nextElementSibling.classList.toggle('show');
+    }
+
+    // Close dropdown on outside click
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.action-dropdown')) {
+            document.querySelectorAll('.action-menu').forEach(m => m.classList.remove('show'));
+        }
+    });
+
+    // Close modals on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('show');
+            }
+        });
+    });
+</script>
+@endpush
