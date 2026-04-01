@@ -4,6 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Transaction;
+use App\Models\Product;
+use App\Models\Debt;
+use App\Models\Expense;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -56,7 +62,62 @@ class AuthController extends Controller
 
     public function dashboard()
     {
-        return view('dashboard');
+        $today = Carbon::today();
+        
+        // 1. Total Penjualan Hari Ini
+        $todaySales = Transaction::whereDate('created_at', $today)->sum('total_amount');
+        
+        // 2. Keuntungan Hari Ini (Estimasi: Revenue - Cost dari items yang terjual)
+        // Jika model TransactionItem belum diekspos, kita bisa pakai estimasi margin 30% atau hitung manual jika relasi ada
+        $todayProfit = Transaction::whereDate('created_at', $today)
+            ->with('items.product')
+            ->get()
+            ->sum(function($transaction) {
+                return $transaction->items->sum(function($item) {
+                    $cost = $item->product->cost_price ?? ($item->product->selling_price * 0.7); // Fallback cost 70%
+                    return ($item->price - $cost) * $item->qty;
+                });
+            });
+
+        // 3. Stok Menipis (Di bawah min_stock)
+        $lowStockCount = Product::whereColumn('stock', '<=', 'min_stock')->count();
+
+        // 4. Total Hutang Pelanggan Belum Lunas
+        $totalDebt = Debt::where('status', '!=', 'Lunas')->sum('amount');
+
+        // 5. Grafik Penjualan 7 Hari Terakhir
+        $chartData = [];
+        $chartLabels = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $chartLabels[] = $date->isoFormat('ddd');
+            $chartData[] = Transaction::whereDate('created_at', $date)->sum('total_amount');
+        }
+
+        // 6. Produk Terlaris Hari Ini
+        $topProduct = DB::table('transaction_items')
+            ->join('products', 'transaction_items.product_id', '=', 'products.id')
+            ->join('transactions', 'transaction_items.transaction_id', '=', 'transactions.id')
+            ->whereDate('transactions.created_at', $today)
+            ->select('products.name', DB::raw('SUM(transaction_items.qty) as total_qty'))
+            ->groupBy('products.id', 'products.name')
+            ->orderByDesc('total_qty')
+            ->first();
+
+        // 7. Jam Tersibuk
+        $busyHour = Transaction::whereDate('created_at', $today)
+            ->select(DB::raw('HOUR(created_at) as hour'), DB::raw('COUNT(*) as count'))
+            ->groupBy('hour')
+            ->orderByDesc('count')
+            ->first();
+
+        // 8. Aktivitas Terakhir
+        $recentActivities = Transaction::orderBy('created_at', 'desc')->take(5)->get();
+
+        return view('dashboard', compact(
+            'todaySales', 'todayProfit', 'lowStockCount', 'totalDebt',
+            'chartData', 'chartLabels', 'topProduct', 'busyHour', 'recentActivities'
+        ));
     }
 
     public function logout(Request $request)

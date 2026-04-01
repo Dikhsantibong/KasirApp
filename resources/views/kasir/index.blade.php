@@ -11,10 +11,9 @@
         .empty-products { text-align: center; padding: 4rem 2rem; color: #94a3b8; grid-column: 1 / -1; }
         .empty-products i { font-size: 4rem; opacity: 0.2; margin-bottom: 1rem; display: block; }
         .empty-products p { font-size: 1rem; }
-        .stock-badge { font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; position: absolute; top: 8px; right: 8px; }
+        .stock-badge { font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; position: absolute; top: 12px; right: 12px; z-index: 10; }
         .stock-ok { background: #ecfdf5; color: #10b981; }
         .stock-low { background: #fef2f2; color: #ef4444; }
-        .product-img-wrapper { position: relative; }
         .toast-notification {
             position: fixed; top: 1.5rem; right: 1.5rem; z-index: 9999;
             background: #0052cc; color: white; padding: 1rem 1.5rem;
@@ -34,7 +33,7 @@
         .receipt-overlay.show { display: flex; }
         .receipt-card {
             background: white; border-radius: 20px; padding: 2rem;
-            width: 380px; max-height: 80vh; overflow-y: auto;
+            width: 440px; max-height: 80vh; overflow-y: auto;
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
             text-align: center;
         }
@@ -43,7 +42,7 @@
         .receipt-items { text-align: left; margin: 1.5rem 0; }
         .receipt-item-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed #e2e8f0; font-size: 0.85rem; }
         .receipt-total-row { display: flex; justify-content: space-between; padding: 1rem 0; font-weight: 800; font-size: 1.1rem; color: #1e293b; border-top: 2px solid #1e293b; }
-        .receipt-close-btn { margin-top: 1rem; background: #0052cc; color: white; border: none; padding: 0.75rem 2rem; border-radius: 10px; font-weight: 700; cursor: pointer; }
+        .receipt-close-btn { margin-top: 1rem; background: #0052cc; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
     </style>
 @endpush
 
@@ -91,9 +90,13 @@
                 <!-- Products Grid -->
                 <div class="products-grid">
                     @forelse($products as $product)
-                        <div class="product-card" onclick="addToCart('{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->selling_price }}, {{ $product->stock }})">
+                        <div class="product-card" onclick="addToCart('{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->selling_price }}, {{ $product->stock }}, '{{ $product->image ? asset('storage/' . $product->image) : '' }}')">
                             <div class="product-img-wrapper">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($product->name) }}&background=random&color=fff&size=200" alt="{{ $product->name }}">
+                                @if($product->image && Storage::disk('public')->exists($product->image))
+                                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" style="object-fit: cover; height: 100%; width: 100%;">
+                                @else
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($product->name) }}&background=random&color=fff&size=200" alt="{{ $product->name }}">
+                                @endif
                                 <span class="stock-badge {{ $product->stock <= ($product->min_stock ?: 5) ? 'stock-low' : 'stock-ok' }}">
                                     Stok: {{ $product->stock }}
                                 </span>
@@ -103,7 +106,7 @@
                                 <span class="product-name">{{ $product->name }}</span>
                                 <div class="product-price-row">
                                     <span class="product-price">Rp {{ number_format($product->selling_price, 0, ',', '.') }}</span>
-                                    <button class="btn-add-product" onclick="event.stopPropagation(); addToCart('{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->selling_price }}, {{ $product->stock }})">
+                                    <button class="btn-add-product" onclick="event.stopPropagation(); addToCart('{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->selling_price }}, {{ $product->stock }}, '{{ $product->image ? asset('storage/' . $product->image) : '' }}')">
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
@@ -189,7 +192,12 @@
             <span id="receipt-total">Rp 0</span>
         </div>
         <p style="font-size:0.75rem; color:#94a3b8; margin-top:1rem;" id="receipt-id"></p>
-        <button class="receipt-close-btn" onclick="closeReceipt()">Transaksi Baru</button>
+        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
+            <button class="receipt-close-btn" onclick="printReceipt()" style="background: #10b981;">
+                <i class="fas fa-print" style="margin-right:8px;"></i> Cetak Struk
+            </button>
+            <button class="receipt-close-btn" onclick="closeReceipt()">Transaksi Baru</button>
+        </div>
     </div>
 </div>
 @endsection
@@ -200,6 +208,7 @@
     let cart = [];
     let paymentMethod = 'Tunai';
     let isProcessing = false;
+    let currentTransactionId = null;
 
     // === TOAST ===
     function showToast(message, isError = false) {
@@ -215,7 +224,7 @@
     }
 
     // === ADD TO CART ===
-    function addToCart(id, name, price, stock) {
+    function addToCart(id, name, price, stock, image = '') {
         const existing = cart.find(i => i.id === id);
 
         if (existing) {
@@ -225,7 +234,7 @@
             }
             existing.qty += 1;
         } else {
-            cart.push({ id, name, price, stock, qty: 1 });
+            cart.push({ id, name, price, stock, image, qty: 1 });
         }
 
         showToast(name + ' ditambahkan ke keranjang');
@@ -282,9 +291,12 @@
                 const itemTotal = item.price * item.qty;
                 subtotal += itemTotal;
                 totalItems += item.qty;
+                
+                const imgSrc = item.image ? item.image : `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=random&color=fff&size=50`;
+                
                 html += `
                     <div class="cart-item">
-                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=random&color=fff&size=50" class="cart-item-img" alt="${item.name}">
+                        <img src="${imgSrc}" class="cart-item-img" alt="${item.name}" style="object-fit: cover;">
                         <div class="cart-item-details">
                             <div class="cart-item-title">${item.name}</div>
                             <div class="qty-control">
@@ -342,6 +354,15 @@
         .then(data => {
             if (data.success) {
                 showReceipt(data);
+                // Save current cart data to render on the receipt view
+                const receiptItemsHtml = cart.map(item => `
+                    <div class="receipt-item-row">
+                        <span>${item.name} x${item.qty}</span>
+                        <span>${formatRupiah(item.price * item.qty)}</span>
+                    </div>
+                `).join('');
+                document.getElementById('receipt-items').innerHTML = receiptItemsHtml;
+                
                 cart = [];
                 renderCart();
                 showToast('Transaksi berhasil!');
@@ -364,24 +385,19 @@
     function showReceipt(data) {
         document.getElementById('receipt-method').textContent = 'Metode: ' + paymentMethod;
         document.getElementById('receipt-total').textContent = formatRupiah(data.total);
-        document.getElementById('receipt-id').textContent = 'ID Transaksi: ' + data.transaction_id;
-
-        // Build receipt items from current cart (before clearing)
-        let itemsHtml = '';
-        cart.forEach(item => {
-            itemsHtml += `<div class="receipt-item-row">
-                <span>${item.name} x${item.qty}</span>
-                <span>${formatRupiah(item.price * item.qty)}</span>
-            </div>`;
-        });
-        document.getElementById('receipt-items').innerHTML = itemsHtml;
-
+        document.getElementById('receipt-id').textContent = 'ID: ' + data.transaction_id.substring(0, 8).toUpperCase();
+        currentTransactionId = data.transaction_id;
         document.getElementById('receipt-overlay').classList.add('show');
+    }
+
+    function printReceipt() {
+        if (!currentTransactionId) return;
+        const printUrl = `/transaksi/${currentTransactionId}/cetak`;
+        window.open(printUrl, '_blank', 'width=400,height=600');
     }
 
     function closeReceipt() {
         document.getElementById('receipt-overlay').classList.remove('show');
-        // Reload agar stock di produk ter-update
         window.location.reload();
     }
 

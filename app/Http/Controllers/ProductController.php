@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -36,7 +37,13 @@ class ProductController extends Controller
             'stock' => 'required|integer|min:0',
             'min_stock' => 'required|integer|min:0',
             'barcode' => 'nullable|string|max:100',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('products', 'public');
+        }
 
         Product::create([
             'id' => Str::uuid()->toString(),
@@ -47,6 +54,7 @@ class ProductController extends Controller
             'selling_price' => $request->selling_price,
             'stock' => $request->stock,
             'min_stock' => $request->min_stock,
+            'image' => $imagePath,
             'created_at' => now(),
         ]);
 
@@ -63,10 +71,12 @@ class ProductController extends Controller
             'stock' => 'required|integer|min:0',
             'min_stock' => 'required|integer|min:0',
             'barcode' => 'nullable|string|max:100',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $product = Product::findOrFail($id);
-        $product->update([
+        
+        $data = [
             'name' => $request->name,
             'category_id' => $request->category_id,
             'barcode' => $request->barcode,
@@ -74,7 +84,17 @@ class ProductController extends Controller
             'selling_price' => $request->selling_price,
             'stock' => $request->stock,
             'min_stock' => $request->min_stock,
-        ]);
+        ];
+
+        if ($request->hasFile('image')) {
+            // Delete old image
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $data['image'] = $request->file('image')->store('products', 'public');
+        }
+
+        $product->update($data);
 
         return redirect()->route('produk.index')->with('success', 'Produk berhasil diperbarui!');
     }
@@ -82,6 +102,12 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
+        
+        // Delete image if exists
+        if ($product->image && Storage::disk('public')->exists($product->image)) {
+            Storage::disk('public')->delete($product->image);
+        }
+
         $product->delete();
 
         return redirect()->route('produk.index')->with('success', 'Produk berhasil dihapus!');

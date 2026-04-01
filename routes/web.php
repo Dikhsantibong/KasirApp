@@ -21,6 +21,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/produk/{id}', [\App\Http\Controllers\ProductController::class, 'update'])->name('produk.update');
     Route::delete('/produk/{id}', [\App\Http\Controllers\ProductController::class, 'destroy'])->name('produk.destroy');
     Route::get('/transaksi', [\App\Http\Controllers\TransactionController::class, 'index'])->name('transaksi.index');
+    Route::get('/transaksi/{id}/cetak', [\App\Http\Controllers\TransactionController::class, 'print'])->name('transaksi.cetak');
     Route::get('/pembelian', [\App\Http\Controllers\PurchaseController::class, 'index'])->name('pembelian.index');
     Route::get('/stock', [\App\Http\Controllers\StockController::class, 'index'])->name('stock.index');
     Route::get('/pelanggan', [\App\Http\Controllers\CustomerController::class, 'index'])->name('pelanggan.index');

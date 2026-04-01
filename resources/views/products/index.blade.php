@@ -169,7 +169,13 @@
                                 elseif($product->stock <= ($product->min_stock ?: 5)) { $statusClass = 'status-low'; $statusText = 'Stok Menipis'; }
                             @endphp
                             <tr>
-                                <td><img src="https://ui-avatars.com/api/?name={{ urlencode($product->name) }}&background=random&color=fff&size=50" class="product-img" alt="IMG"></td>
+                                <td>
+                                    @if($product->image && Storage::disk('public')->exists($product->image))
+                                        <img src="{{ asset('storage/' . $product->image) }}" class="product-img" alt="IMG" style="object-fit: cover; width:50px; height:50px; border-radius:10px;">
+                                    @else
+                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($product->name) }}&background=random&color=fff&size=50" class="product-img" alt="IMG">
+                                    @endif
+                                </td>
                                 <td class="product-info-cell">
                                     <h4>{{ $product->name }}</h4>
                                     <p>{{ $product->barcode ?? '-' }}</p>
@@ -243,8 +249,12 @@
             <h2><i class="fas fa-plus-circle" style="color:#0052cc; margin-right:8px;"></i> Tambah Produk Baru</h2>
             <button class="modal-close" onclick="closeAddModal()"><i class="fas fa-times"></i></button>
         </div>
-        <form action="{{ route('produk.store') }}" method="POST">
+        <form action="{{ route('produk.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
+            <div class="form-group">
+                <label class="form-label">Gambar Produk</label>
+                <input type="file" name="image" class="form-input" accept="image/*">
+            </div>
             <div class="form-group">
                 <label class="form-label">Nama Produk *</label>
                 <input type="text" name="name" class="form-input" placeholder="Contoh: Kopi Arabika 250g" required>
@@ -296,9 +306,13 @@
             <h2><i class="fas fa-edit" style="color:#f59e0b; margin-right:8px;"></i> Edit Produk</h2>
             <button class="modal-close" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
         </div>
-        <form id="editForm" method="POST">
+        <form id="editForm" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+            <div class="form-group">
+                <label class="form-label">Ganti Gambar Produk</label>
+                <input type="file" name="image" class="form-input" accept="image/*">
+            </div>
             <div class="form-group">
                 <label class="form-label">Nama Produk *</label>
                 <input type="text" name="name" id="edit-name" class="form-input" required>

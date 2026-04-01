@@ -44,4 +44,14 @@ class TransactionController extends Controller
         
         return view('transactions.index', compact('transactions', 'todayTotal', 'monthlyTotal', 'todayCount'));
     }
+
+    public function print($id)
+    {
+        $transaction = Transaction::with(['user', 'items.product', 'customer'])->findOrFail($id);
+        
+        // Fetch store Info if possible, else use default
+        $store = \DB::table('stores')->first(); 
+        
+        return view('transactions.receipt', compact('transaction', 'store'));
+    }
 }

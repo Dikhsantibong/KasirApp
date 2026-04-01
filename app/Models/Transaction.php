@@ -15,6 +15,9 @@ class Transaction extends Model
     protected $keyType = 'string';
     public $timestamps = false;
     protected $guarded = [];
+    protected $casts = [
+        'created_at' => 'datetime',
+    ];
 
     public function user()
     {

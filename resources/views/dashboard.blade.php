@@ -34,7 +34,7 @@
                     <i class="far fa-bell"></i>
                     <span style="position:absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; border: 2px solid white;"></span>
                 </div>
-                <img src="https://ui-avatars.com/api/?name=Admin+Kasir&background=0D8ABC&color=fff" class="user-thumb" alt="User">
+                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=0D8ABC&color=fff" class="user-thumb" alt="User">
             </div>
         </header>
 
@@ -46,9 +46,9 @@
                 <div class="header-btns">
                     <a href="#" class="btn-white">
                         <i class="far fa-calendar-alt"></i>
-                        <span>12 Okt 2023</span>
+                        <span>{{ \Carbon\Carbon::now()->translatedFormat('d M Y') }}</span>
                     </a>
-                    <a href="#" class="btn-primary">
+                    <a href="{{ route('kasir.index') }}" class="btn-primary">
                         <i class="fas fa-plus"></i>
                         <span>Transaksi Baru</span>
                     </a>
@@ -63,10 +63,9 @@
                     <div class="card-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
                         <i class="fas fa-wallet"></i>
                     </div>
-                    <span class="badge-growth">+12.5%</span>
                 </div>
-                <span class="card-label">Total Penjualan</span>
-                <span class="card-value">Rp 2.450.000</span>
+                <span class="card-label">Total Penjualan Hari Ini</span>
+                <span class="card-value">Rp {{ number_format($todaySales, 0, ',', '.') }}</span>
             </div>
 
             <div class="card-stat">
@@ -74,10 +73,9 @@
                     <div class="card-icon" style="background: rgba(45, 212, 191, 0.1); color: #2dd4bf;">
                         <i class="fas fa-chart-line"></i>
                     </div>
-                    <span class="badge-growth">+8.2%</span>
                 </div>
-                <span class="card-label">Keuntungan</span>
-                <span class="card-value">Rp 850.000</span>
+                <span class="card-label">Estimasi Keuntungan</span>
+                <span class="card-value" style="color: #059669;">Rp {{ number_format($todayProfit, 0, ',', '.') }}</span>
             </div>
 
             <div class="card-stat">
@@ -85,10 +83,12 @@
                     <div class="card-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
                         <i class="fas fa-box-open"></i>
                     </div>
-                    <span class="badge-tag" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">Peringatan</span>
+                    @if($lowStockCount > 0)
+                        <span class="badge-tag" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">Peringatan</span>
+                    @endif
                 </div>
                 <span class="card-label">Stok Menipis</span>
-                <span class="card-value">5 Produk</span>
+                <span class="card-value">{{ $lowStockCount }} Produk</span>
             </div>
 
             <div class="card-stat">
@@ -96,10 +96,12 @@
                     <div class="card-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
                         <i class="fas fa-user-clock"></i>
                     </div>
-                    <span class="badge-tag" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">Penting</span>
+                    @if($totalDebt > 0)
+                        <span class="badge-tag" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">Penting</span>
+                    @endif
                 </div>
                 <span class="card-label">Hutang Pelanggan</span>
-                <span class="card-value">Rp 1.200.000</span>
+                <span class="card-value">Rp {{ number_format($totalDebt, 0, ',', '.') }}</span>
             </div>
         </div>
 
@@ -112,10 +114,6 @@
                         <h3 style="font-weight: 700;">Grafik Penjualan Mingguan</h3>
                         <p style="color: #5e6c84; font-size: 0.85rem;">Performa transaksi 7 hari terakhir</p>
                     </div>
-                    <div style="background: #f4f5f7; padding: 4px; border-radius: 8px;">
-                        <button style="border:none; background:white; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 0.8rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor:pointer;">Mingguan</button>
-                        <button style="border:none; background:transparent; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.8rem; color: #5e6c84; cursor:pointer;">Bulanan</button>
-                    </div>
                 </div>
                 <div style="height: 300px; position:relative;">
                     <canvas id="salesChart"></canvas>
@@ -127,62 +125,45 @@
                 <div class="ai-card">
                     <h3><i class="fas fa-brain"></i> Insight Bisnis (AI)</h3>
                     <div class="busy-box">
-                        <span style="font-size: 0.8rem; opacity: 0.9; display:block; margin-bottom: 8px;">JAM TERSIBUK</span>
+                        <span style="font-size: 0.8rem; opacity: 0.9; display:block; margin-bottom: 8px;">JAM TERSIBUK HARI INI</span>
                         <div style="display: flex; align-items: center; gap: 8px; font-weight: 700;">
                             <i class="far fa-clock"></i>
-                            <span style="font-size: 1.1rem;">19:00 - 20:00</span>
+                            <span style="font-size: 1.1rem;">{{ $busyHour ? str_pad($busyHour->hour, 2, '0', STR_PAD_LEFT).':00' : '--:--' }}</span>
                         </div>
                     </div>
                     <div style="margin-bottom: 1rem;">
                         <span style="font-size: 0.8rem; opacity: 0.9; display:block; margin-bottom: 8px;">PRODUK TERLARIS</span>
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <img src="https://ui-avatars.com/api/?name=Kopi&background=000&color=fff" style="width: 40px; height:40px; border-radius: 8px;" alt="Product">
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode($topProduct ? $topProduct->name : 'N/A') }}&background=000&color=fff" style="width: 40px; height:40px; border-radius: 8px;" alt="Product">
                             <div>
-                                <span style="font-weight: 700; display:block;">Kopi Susu Gula Aren</span>
-                                <span style="font-size: 0.75rem; opacity: 0.8;">42 Transaksi hari ini</span>
+                                <span style="font-weight: 700; display:block;">{{ $topProduct->name ?? 'Belum ada transaksi' }}</span>
+                                <span style="font-size: 0.75rem; opacity: 0.8;">{{ $topProduct->total_qty ?? 0 }} Terjual hari ini</span>
                             </div>
                         </div>
                     </div>
-                    <button class="btn-white-full">Lihat Semua Rekomendasi</button>
+                    <a href="{{ route('insight.index') }}" class="btn-white-full">Lihat Semua Rekomendasi</a>
                 </div>
 
                 <div class="activity-card" style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: var(--shadow);">
                     <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
                         <h3 style="font-size: 1rem; font-weight: 700;">Aktivitas Terakhir</h3>
-                        <i class="fas fa-ellipsis-h" style="color: #94a3b8; cursor:pointer;"></i>
+                        <a href="{{ route('transaksi.index') }}"><i class="fas fa-external-link-alt" style="color: #94a3b8; cursor:pointer;"></i></a>
                     </div>
                     <div class="timeline" style="display: flex; flex-direction: column; gap: 1rem;">
-                        <div style="display:flex; justify-content: space-between; align-items: flex-start; border-left: 3px solid #38a169; padding-left: 12px;">
-                            <div>
-                                <span style="font-weight: 700; font-size: 0.9rem; display:block;">Penjualan Berhasil</span>
-                                <span style="font-size: 0.8rem; color: #5e6c84;">INV-9201 • 2 mnt yang lalu</span>
+                        @forelse($recentActivities as $activity)
+                            <div style="display:flex; justify-content: space-between; align-items: flex-start; border-left: 3px solid #38a169; padding-left: 12px;">
+                                <div>
+                                    <span style="font-weight: 700; font-size: 0.9rem; display:block;">Penjualan Berhasil</span>
+                                    <span style="font-size: 0.8rem; color: #5e6c84;">{{ strtoupper(substr($activity->id, 0, 8)) }} • {{ $activity->created_at->diffForHumans() }}</span>
+                                </div>
+                                <span style="color: #0052cc; font-weight: 700; font-size: 0.9rem;">Rp {{ number_format($activity->total_amount, 0, ',', '.') }}</span>
                             </div>
-                            <span style="color: #0052cc; font-weight: 700; font-size: 0.9rem;">Rp 120rb</span>
-                        </div>
-                        <div style="display:flex; justify-content: space-between; align-items: flex-start; border-left: 3px solid #ec4899; padding-left: 12px; opacity: 0.7;">
-                            <div>
-                                <span style="font-weight: 700; font-size: 0.9rem; display:block;">Stok Masuk</span>
-                                <span style="font-size: 0.8rem; color: #5e6c84;">Susu UHT x12 • 15 mnt yang lalu</span>
-                            </div>
-                            <i class="fas fa-chevron-right" style="color: #cbd5e0; font-size: 0.8rem;"></i>
-                        </div>
+                        @empty
+                            <p style="font-size: 0.85rem; color: #94a3b8; text-align: center;">Belum ada aktivitas hari ini</p>
+                        @endforelse
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Banner Fitur -->
-        <div class="bottom-banner">
-            <div class="banner-content">
-                <div class="banner-icon">
-                    <i class="fas fa-cog"></i>
-                </div>
-                <div>
-                    <h4 style="font-weight: 700; margin-bottom: 2px;">Fitur Baru: Pengaturan Promo Otomatis</h4>
-                    <p style="font-size: 0.85rem; color: #5e6c84;">Tingkatkan omzet hingga 20% dengan sistem bundle.</p>
-                </div>
-            </div>
-            <a href="#" class="banner-btn">Coba Sekarang</a>
         </div>
     </main>
 </div>
@@ -200,10 +181,10 @@
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB', 'MIN'],
+                    labels: {!! json_encode($chartLabels) !!},
                     datasets: [{
                         label: 'Penjualan',
-                        data: [15, 25, 20, 35, 28, 45, 30],
+                        data: {!! json_encode($chartData) !!},
                         borderColor: '#0052cc',
                         borderWidth: 3,
                         pointBackgroundColor: '#fff',
@@ -220,7 +201,16 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { display: false },
+                        y: { 
+                            beginAtZero: true,
+                            ticks: { 
+                                callback: function(value) {
+                                    if (value >= 1000000) return value / 1000000 + 'M';
+                                    if (value >= 1000) return value / 1000 + 'rb';
+                                    return value;
+                                }
+                            }
+                        },
                         x: {
                             grid: { display: false },
                             ticks: { font: { weight: 'bold', size: 11 }, color: '#5e6c84' }
