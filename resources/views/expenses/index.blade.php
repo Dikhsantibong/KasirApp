@@ -4,6 +4,57 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/pengeluaran.css') }}">
+    <style>
+        /* CRITICAL CSS TO PREVENT FOUC */
+        .modal-overlay {
+            position: fixed; top:0; left:0; right:0; bottom:0;
+            background: rgba(0,0,0,0.6); z-index: 9998;
+            display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.show { display: flex !important; }
+        
+        .modal-card {
+            background: white; border-radius: 20px; padding: 2rem;
+            width: 450px; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            animation: modalIn 0.3s ease;
+            color: #1e293b;
+        }
+        @keyframes modalIn { from { transform: translateY(30px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+        .modal-header h2 { font-size:1.3rem; font-weight:800; color:#1e293b; margin:0; }
+        .modal-close { background:none; border:none; font-size:1.25rem; color:#94a3b8; cursor:pointer; }
+        
+        .form-group { margin-bottom: 1.25rem; text-align: left; }
+        .form-label { display:block; font-size:0.8rem; font-weight:700; color:#475569; margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.5px; }
+        .form-input {
+            width:100%; padding:0.75rem 1rem; border:1px solid #e2e8f0;
+            border-radius:10px; font-size:0.95rem; color:#1e293b;
+            transition: border 0.2s;
+        }
+        .form-input:focus { outline:none; border-color:#0052cc; box-shadow: 0 0 0 3px rgba(0,82,204,0.1); }
+        .btn-submit {
+            width:100%; background:#0052cc; color:white; border:none;
+            padding:0.85rem; border-radius:10px; font-weight:700; font-size:0.95rem;
+            cursor:pointer; margin-top:1rem;
+        }
+        .btn-submit:hover { background:#003d99; }
+
+        /* TOAST */
+        .toast-notification {
+            position: fixed; top: 1.5rem; right: 1.5rem; z-index: 9999;
+            background: #0052cc; color: white; padding: 1rem 1.5rem;
+            border-radius: 12px; font-weight: 600; font-size: 0.9rem;
+            box-shadow: 0 10px 25px -5px rgba(0,82,204,0.4);
+            transform: translateX(120%); transition: transform 0.4s ease;
+        }
+        .toast-notification.show { transform: translateX(0); }
+        .toast-notification.error { background: #ef4444; box-shadow: 0 10px 25px -5px rgba(239,68,68,0.4); }
+        
+        /* THEME HARMONIZATION */
+        body { background-color: #f8fafc !important; color: #1e293b !important; }
+    </style>
 @endpush
 
 @section('content')
@@ -33,7 +84,7 @@
                     <h1 class="page-title">Catatan Pengeluaran</h1>
                     <p class="page-subtitle">Kelola dan pantau setiap aliran kas keluar bisnis Anda.</p>
                 </div>
-                <div><button class="btn-primary"><i class="fas fa-plus-circle"></i> Catat Pengeluaran</button></div>
+                <div><button class="btn-primary" onclick="openExpenseModal()"><i class="fas fa-plus-circle"></i> Catat Pengeluaran</button></div>
             </div>
 
             <!-- WIDGETS -->
@@ -117,3 +168,91 @@
     </div>
 </div>
 @endsection
+
+<!-- MODAL CATAT PENGELUARAN -->
+<div class="modal-overlay" id="expenseModal" style="display: none;">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2><i class="fas fa-receipt" style="color:#0052cc; margin-right:8px;"></i> Catat Pengeluaran</h2>
+            <button class="modal-close" onclick="closeExpenseModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <form action="{{ route('pengeluaran.store') }}" method="POST" id="expenseForm">
+            @csrf
+            <div class="form-group">
+                <label class="form-label">Keterangan / Nama *</label>
+                <input type="text" name="name" class="form-input" placeholder="Contoh: Bayar Listrik, Gaji Karyawan" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nominal (Rp) *</label>
+                <input type="number" name="amount" class="form-input" placeholder="0" required>
+            </div>
+            <button type="submit" class="btn-submit"><i class="fas fa-save" style="margin-right:8px;"></i> Simpan Pengeluaran</button>
+        </form>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-notification" id="toast"></div>
+
+@push('scripts')
+<script>
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'toast-notification show' + (isError ? ' error' : '');
+        setTimeout(() => { toast.className = 'toast-notification'; }, 3000);
+    }
+
+    function openExpenseModal() {
+        document.getElementById('expenseModal').classList.add('show');
+    }
+
+    function closeExpenseModal() {
+        document.getElementById('expenseModal').classList.remove('show');
+    }
+
+    // AJAX SUBMISSION
+    document.getElementById('expenseForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        const formData = new FormData(form);
+        const btn = form.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                showToast(data.message);
+                closeExpenseModal();
+                form.reset();
+                // Refresh list after a short delay
+                setTimeout(() => { window.location.reload(); }, 1000);
+            } else {
+                showToast(data.message || 'Gagal menyimpan data', true);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save" style="margin-right:8px;"></i> Simpan Pengeluaran';
+            }
+        })
+        .catch(err => {
+            showToast('Terjadi kesalahan jaringan!', true);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save" style="margin-right:8px;"></i> Simpan Pengeluaran';
+        });
+    });
+
+    // Close modals on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('show');
+            }
+        });
+    });
+</script>
+@endpush

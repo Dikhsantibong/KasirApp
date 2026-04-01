@@ -27,8 +27,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/pembelian/supplier', [\App\Http\Controllers\PurchaseController::class, 'storeSupplier'])->name('pembelian.supplier.store');
     Route::get('/stock', [\App\Http\Controllers\StockController::class, 'index'])->name('stock.index');
     Route::get('/pelanggan', [\App\Http\Controllers\CustomerController::class, 'index'])->name('pelanggan.index');
+    Route::post('/pelanggan', [\App\Http\Controllers\CustomerController::class, 'store'])->name('pelanggan.store');
     Route::get('/hutang', [\App\Http\Controllers\DebtController::class, 'index'])->name('hutang.index');
     Route::get('/pengeluaran', [\App\Http\Controllers\ExpenseController::class, 'index'])->name('pengeluaran.index');
+    Route::post('/pengeluaran', [\App\Http\Controllers\ExpenseController::class, 'store'])->name('pengeluaran.store');
     Route::get('/laporan', [\App\Http\Controllers\ReportController::class, 'index'])->name('laporan.index');
     Route::get('/insight', [\App\Http\Controllers\InsightController::class, 'index'])->name('insight.index');
 });

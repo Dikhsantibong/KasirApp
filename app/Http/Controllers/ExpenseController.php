@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Expense;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ExpenseController extends Controller
 {
@@ -36,5 +37,29 @@ class ExpenseController extends Controller
         $expenses = $query->paginate(12);
 
         return view('expenses.index', compact('expenses', 'totalMonth', 'topExpense'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:150',
+            'amount' => 'required|numeric|min:0',
+        ]);
+
+        $expense = Expense::create([
+            'id' => Str::uuid()->toString(),
+            'name' => $request->name,
+            'amount' => $request->amount,
+        ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pengeluaran berhasil dicatat!',
+                'expense' => $expense
+            ]);
+        }
+
+        return redirect()->route('pengeluaran.index')->with('success', 'Pengeluaran berhasil dicatat!');
     }
 }

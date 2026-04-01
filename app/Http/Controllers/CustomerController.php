@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Models\Debt;
 use App\Models\Transaction;
+use Illuminate\Support\Str;
 
 class CustomerController extends Controller
 {
@@ -30,5 +31,30 @@ class CustomerController extends Controller
         $totalCustomer = Customer::count();
 
         return view('customers.index', compact('customers', 'totalPiutang', 'jatuhTempoCount', 'totalCustomer'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:100',
+            'phone' => 'nullable|string|max:20',
+        ]);
+
+        $customer = Customer::create([
+            'id' => Str::uuid()->toString(),
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'created_at' => now(),
+        ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pelanggan berhasil ditambahkan!',
+                'customer' => $customer
+            ]);
+        }
+
+        return redirect()->route('pelanggan.index')->with('success', 'Pelanggan berhasil ditambahkan!');
     }
 }

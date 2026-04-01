@@ -408,6 +408,45 @@
     z-index: 100;
     display: flex;
     flex-direction: column;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(0);
+}
+
+.credit-widget.hidden {
+    transform: translateY(calc(100% + 4rem));
+    opacity: 0;
+    pointer-events: none;
+}
+
+.credit-launcher {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 56px;
+    height: 56px;
+    background: #0052cc;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 82, 204, 0.4);
+    cursor: pointer;
+    z-index: 99;
+    transition: all 0.4s ease;
+    transform: scale(0);
+    opacity: 0;
+}
+
+.credit-launcher.show {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.credit-launcher:hover {
+    transform: scale(1.1);
+    background: #003d99;
 }
 
 .credit-header {
@@ -433,11 +472,25 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.1rem;
 }
 
 .credit-header h4 { margin: 0; font-weight: 700; color: #1e293b; font-size: 0.95rem; }
 .credit-header p { margin: 0; font-size: 0.75rem; color: #94a3b8; }
-.credit-close { color: #94a3b8; cursor: pointer; }
+.credit-close { 
+    background: #f1f5f9;
+    color: #94a3b8;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.credit-close:hover { background: #fee2e2; color: #ef4444; }
 
 .credit-body {
     padding: 1.25rem;
