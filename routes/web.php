@@ -23,6 +23,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/transaksi', [\App\Http\Controllers\TransactionController::class, 'index'])->name('transaksi.index');
     Route::get('/transaksi/{id}/cetak', [\App\Http\Controllers\TransactionController::class, 'print'])->name('transaksi.cetak');
     Route::get('/pembelian', [\App\Http\Controllers\PurchaseController::class, 'index'])->name('pembelian.index');
+    Route::post('/pembelian', [\App\Http\Controllers\PurchaseController::class, 'store'])->name('pembelian.store');
+    Route::post('/pembelian/supplier', [\App\Http\Controllers\PurchaseController::class, 'storeSupplier'])->name('pembelian.supplier.store');
     Route::get('/stock', [\App\Http\Controllers\StockController::class, 'index'])->name('stock.index');
     Route::get('/pelanggan', [\App\Http\Controllers\CustomerController::class, 'index'])->name('pelanggan.index');
     Route::get('/hutang', [\App\Http\Controllers\DebtController::class, 'index'])->name('hutang.index');

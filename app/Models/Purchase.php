@@ -4,8 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-use App\Models\Supplier;
-
 class Purchase extends Model
 {
     protected $table = 'purchases';
@@ -18,4 +16,10 @@ class Purchase extends Model
     {
         return $this->belongsTo(Supplier::class, 'supplier_id', 'id');
     }
+
+    public function items()
+    {
+        return $this->hasMany(PurchaseItem::class, 'purchase_id', 'id');
+    }
 }
+
