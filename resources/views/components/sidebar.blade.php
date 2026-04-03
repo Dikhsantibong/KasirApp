@@ -1,14 +1,27 @@
  <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-brand">
-            <div class="brand-icon">
-                <i class="fas fa-store"></i>
-            </div>
-            <div>
-                <h2 class="brand-name">Toko Saya</h2>
-                <p class="brand-subtitle">Premium POS</p>
+            <div class="brand-logo">
+                <img src="{{ asset('main_logo.png') }}" alt="Logo" class="sidebar-logo">
             </div>
         </div>
+
+
+        <style>
+            .sidebar-brand { display: flex; align-items: center; gap: 12px; }
+            .sidebar-logo { height: 38px; width: auto; object-fit: contain; }
+            .brand-logo { 
+                background: #fff; 
+                padding: 8px; 
+                border-radius: 12px; 
+                box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+                display: flex; 
+                align-items: center; 
+                justify-content: center;
+                border: 1px solid #f1f5f9;
+            }
+        </style>
+
 
         <nav class="nav-menu">
             <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">

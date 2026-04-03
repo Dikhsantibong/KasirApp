@@ -11,25 +11,11 @@
    <x-sidebar />
 
     <main class="main-content">
-        <header class="topbar">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
+        <x-header title="Insight Bisnis (AI)">
+            <x-slot:search>
                 <form action="#" method="GET" style="width:100%;"><input type="text" placeholder="Cari insight atau data..."></form>
-            </div>
-            <div style="display:flex; align-items:center; gap:15px;">
-                <div style="display:flex; align-items:center; gap:6px; color:#10b981; font-weight:600; font-size:0.85rem;">
-                    <i class="fas fa-sync-alt"></i> Sinkronisasi Berhasil
-                </div>
-                <div style="font-size: 1.25rem; color: #5e6c84; cursor: pointer;"><i class="far fa-bell"></i></div>
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <div style="text-align:right;">
-                        <span style="display:block; font-weight:700; font-size:0.85rem; color:#1e293b;">{{ auth()->user()->name ?? 'Admin' }}</span>
-                        <span style="display:block; font-size:0.75rem; color:#94a3b8;">Pemilik Toko</span>
-                    </div>
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'Admin') }}&background=111&color=fff" style="width:36px; height:36px; border-radius:50%;">
-                </div>
-            </div>
-        </header>
+            </x-slot:search>
+        </x-header>
 
         <div class="page-content">
             <div class="ai-badge"><i class="fas fa-sparkles"></i> POWERED BY AI ANALYSIS</div>

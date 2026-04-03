@@ -57,31 +57,14 @@
    <x-sidebar />
 
     <main class="main-content">
-        <header class="topbar">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
+        <x-header title="Manajemen Produk">
+            <x-slot:search>
                 <form action="{{ route('produk.index') }}" method="GET" style="width:100%;">
                     <input type="text" name="search" placeholder="Cari Produk..." value="{{ request('search') }}">
                 </form>
-            </div>
+            </x-slot:search>
+        </x-header>
 
-            <div class="topbar-actions">
-                <div class="status-sync">
-                    <i class="fas fa-sync-alt" style="margin-right:4px;"></i>
-                    <span>Sinkronisasi Berhasil</span>
-                </div>
-                <div style="font-size: 1.25rem; color: #5e6c84; cursor: pointer;">
-                    <i class="far fa-bell"></i>
-                </div>
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <div style="text-align:right;">
-                        <span style="display:block; font-weight:700; font-size:0.85rem; color:#1e293b;">{{ auth()->user()->name ?? 'Admin Toko' }}</span>
-                        <span style="display:block; font-size:0.75rem; color:#64748b;">Premium Plan</span>
-                    </div>
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'Admin') }}&background=0D8ABC&color=fff" class="user-thumb" alt="User" style="width:36px; height:36px;">
-                </div>
-            </div>
-        </header>
 
         <div class="page-content">
             <div class="page-header">

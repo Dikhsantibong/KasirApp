@@ -51,25 +51,14 @@
    <x-sidebar />
 
     <main class="main-content">
-        <header class="topbar">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
+        <x-header title="Terminal Kasir">
+            <x-slot:search>
                 <form action="{{ route('kasir.index') }}" method="GET" style="width:100%;">
                     <input type="text" name="search" id="global-search" placeholder="Cari Produk atau Scan Barcode..." value="{{ request('search') }}">
                 </form>
-            </div>
+            </x-slot:search>
+        </x-header>
 
-            <div class="topbar-actions">
-                <div class="status-sync">
-                    <i class="fas fa-circle"></i>
-                    <span>Sinkronisasi Berhasil</span>
-                </div>
-                <div style="font-size: 1.25rem; color: #5e6c84; position: relative; cursor: pointer;">
-                    <i class="far fa-bell"></i>
-                </div>
-                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'Admin') }}&background=0D8ABC&color=fff" class="user-thumb" alt="User">
-            </div>
-        </header>
 
         <div class="kasir-wrapper">
 

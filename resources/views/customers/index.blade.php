@@ -57,21 +57,13 @@
    <x-sidebar />
 
     <main class="main-content">
-        <header class="topbar">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
+        <x-header title="Manajemen Pelanggan">
+            <x-slot:search>
                 <form action="{{ route('pelanggan.index') }}" method="GET" style="width:100%;">
                     <input type="text" name="search" placeholder="Cari pelanggan..." value="{{ request('search') }}">
                 </form>
-            </div>
-            <div style="display:flex; align-items:center; gap:15px;">
-                <div style="display:flex; align-items:center; gap:6px; color:#10b981; font-weight:600; font-size:0.85rem;">
-                    <i class="fas fa-check-circle"></i> Sinkronisasi Berhasil
-                </div>
-                <div style="font-size: 1.25rem; color: #5e6c84; cursor: pointer;"><i class="far fa-bell"></i></div>
-                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'Admin') }}&background=0D8ABC&color=fff" style="width:36px; height:36px; border-radius:50%;">
-            </div>
-        </header>
+            </x-slot:search>
+        </x-header>
 
         <div class="page-content">
             <div class="breadcrumb">Manajemen &rsaquo; <span>Pelanggan</span></div>

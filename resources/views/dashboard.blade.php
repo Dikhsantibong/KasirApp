@@ -19,24 +19,8 @@
     <!-- MAIN CONTENT -->
     <main class="main-content">
         <!-- Top Header -->
-        <header class="topbar">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Cari transaksi, produk, atau pelanggan...">
-            </div>
+        <x-header title="Dashboard Utama" searchPlaceholder="Cari transaksi, produk, atau pelanggan..." />
 
-            <div class="topbar-actions">
-                <div class="status-sync">
-                    <i class="fas fa-sync-alt"></i>
-                    <span>Sinkronisasi Berhasil</span>
-                </div>
-                <div style="font-size: 1.25rem; color: #5e6c84; position: relative; cursor: pointer;">
-                    <i class="far fa-bell"></i>
-                    <span style="position:absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; border: 2px solid white;"></span>
-                </div>
-                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=0D8ABC&color=fff" class="user-thumb" alt="User">
-            </div>
-        </header>
 
         <!-- Page Header -->
         <div class="section-title">

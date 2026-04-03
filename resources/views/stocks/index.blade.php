@@ -11,22 +11,13 @@
    <x-sidebar />
 
     <main class="main-content">
-        <header class="topbar">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
+        <x-header title="Monitoring Stock">
+            <x-slot:search>
                 <form action="{{ route('stock.index') }}" method="GET" style="width:100%;">
                     <input type="text" name="search" placeholder="Cari berdasarkan nama atau SKU..." value="{{ request('search') }}">
                 </form>
-            </div>
-            
-            <div style="display:flex; align-items:center; gap:10px;">
-                <div style="text-align:right;">
-                    <span style="display:block; font-weight:700; font-size:0.85rem; color:#1e293b;">Admin Toko</span>
-                    <span style="display:block; font-size:0.75rem; color:#64748b;">Premium Plan</span>
-                </div>
-                <img src="https://ui-avatars.com/api/?name=Admin+Toko&background=0D8ABC&color=fff" style="width:36px; height:36px; border-radius:50%;">
-            </div>
-        </header>
+            </x-slot:search>
+        </x-header>
 
         <div class="page-content">
             <div class="page-header">

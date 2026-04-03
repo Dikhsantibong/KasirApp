@@ -64,22 +64,14 @@
    <x-sidebar />
 
     <main class="main-content">
-        <header class="topbar">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
+        <x-header title="Manajemen Pembelian Stok">
+            <x-slot:search>
                 <form action="{{ route('pembelian.index') }}" method="GET" style="width:100%;">
                     <input type="text" name="search" placeholder="Cari transaksi atau supplier..." value="{{ request('search') }}">
                 </form>
-            </div>
-            <div class="topbar-actions">
-                <div class="status-sync">
-                    <i class="fas fa-sync-alt" style="margin-right:4px;"></i>
-                    <span>Sinkronisasi Berhasil</span>
-                </div>
-                <div style="font-size: 1.25rem; color: #5e6c84; cursor: pointer;"><i class="far fa-bell"></i></div>
-                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'Admin') }}&background=0D8ABC&color=fff" class="user-thumb" alt="User" style="width:36px; height:36px;">
-            </div>
-        </header>
+            </x-slot:search>
+        </x-header>
+
 
         <div class="page-content">
             <div class="page-header">
