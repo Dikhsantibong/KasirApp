@@ -2,7 +2,11 @@
     <aside class="sidebar">
         <div class="sidebar-brand">
             <div class="brand-logo">
-                <img src="{{ asset('main_logo.png') }}" alt="Logo" class="sidebar-logo">
+                <!-- Logo Utama (Muncul saat sidebar terbuka) -->
+                <img src="{{ asset('main_logo.png') }}" alt="Logo" class="sidebar-logo logo-full">
+                
+                <!-- Logo Ikon (Muncul saat sidebar ditutup) - Silakan ubah src-nya nanti -->
+                <img src="{{ asset('icon_logo.png') }}" alt="Icon" class="sidebar-logo logo-collapsed">
             </div>
         </div>
 
@@ -19,6 +23,60 @@
                 align-items: center; 
                 justify-content: center;
                 border: 1px solid #f1f5f9;
+                transition: padding 0.3s ease;
+            }
+
+            /* Collapsed State Styles */
+            .sidebar, .main-content {
+                transition: width 0.3s ease, margin-left 0.3s ease;
+            }
+            .sidebar .nav-link span {
+                transition: opacity 0.3s ease, width 0.3s ease;
+                white-space: nowrap;
+            }
+            .sidebar .nav-link i {
+                transition: margin-right 0.3s ease, font-size 0.3s ease;
+            }
+            .sidebar-logo {
+                transition: height 0.3s ease;
+            }
+            
+            .logo-collapsed {
+                display: none;
+            }
+
+            body.sidebar-collapsed .sidebar {
+                width: 80px;
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+            body.sidebar-collapsed .main-content {
+                margin-left: 80px;
+            }
+            body.sidebar-collapsed .sidebar .nav-link span {
+                opacity: 0;
+                width: 0;
+                overflow: hidden;
+            }
+            body.sidebar-collapsed .sidebar .nav-link {
+                justify-content: center;
+                padding: 12px;
+            }
+            body.sidebar-collapsed .sidebar .nav-link i {
+                margin-right: 0;
+                font-size: 1.3rem;
+            }
+            body.sidebar-collapsed .sidebar .brand-logo {
+                padding: 4px;
+            }
+            body.sidebar-collapsed .sidebar .sidebar-logo {
+                height: 24px;
+            }
+            body.sidebar-collapsed .logo-full {
+                display: none;
+            }
+            body.sidebar-collapsed .logo-collapsed {
+                display: block;
             }
         </style>
 

@@ -116,6 +116,11 @@ body {
 .main-content {
     flex: 1;
     margin-left: 260px;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-content {
     padding: 1.5rem 2rem;
 }
 

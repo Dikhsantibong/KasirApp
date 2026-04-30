@@ -101,16 +101,17 @@ class ProductController extends Controller
 
     public function destroy($id)
     {
-        $product = Product::findOrFail($id);
-        
-        // Delete image if exists
-        if ($product->image && Storage::disk('public')->exists($product->image)) {
-            Storage::disk('public')->delete($product->image);
+        try {
+            $product = Product::findOrFail($id);
+            
+            // On soft delete, we typically keep the image so it can be restored.
+            // If you want to force delete, you'd handle that separately.
+            $product->delete();
+
+            return redirect()->route('produk.index')->with('success', 'Produk berhasil dihapus (arsip)!');
+        } catch (\Exception $e) {
+            return redirect()->route('produk.index')->with('error', 'Gagal menghapus produk: ' . $e->getMessage());
         }
-
-        $product->delete();
-
-        return redirect()->route('produk.index')->with('success', 'Produk berhasil dihapus!');
     }
 
     public function storeCategory(Request $request)

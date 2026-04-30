@@ -372,6 +372,15 @@
         });
     @endif
 
+    @if(session('error'))
+        document.addEventListener('DOMContentLoaded', () => {
+            const t = document.getElementById('toast');
+            t.textContent = '{{ session("error") }}';
+            t.className = 'toast show error';
+            setTimeout(() => t.className = 'toast', 3000);
+        });
+    @endif
+
     // === ADD MODAL ===
     function openAddModal() { document.getElementById('addModal').classList.add('show'); }
     function closeAddModal() { document.getElementById('addModal').classList.remove('show'); }

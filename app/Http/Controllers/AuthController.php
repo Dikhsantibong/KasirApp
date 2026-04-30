@@ -70,11 +70,17 @@ class AuthController extends Controller
         // 2. Keuntungan Hari Ini (Estimasi: Revenue - Cost dari items yang terjual)
         // Jika model TransactionItem belum diekspos, kita bisa pakai estimasi margin 30% atau hitung manual jika relasi ada
         $todayProfit = Transaction::whereDate('created_at', $today)
-            ->with('items.product')
+            ->with(['items.product' => function($query) {
+                $query->withTrashed();
+            }])
             ->get()
             ->sum(function($transaction) {
                 return $transaction->items->sum(function($item) {
-                    $cost = $item->product->cost_price ?? ($item->product->selling_price * 0.7); // Fallback cost 70%
+                    // Jika produk sudah dihapus (soft delete), kita tetap ambil datanya untuk hitung profit history
+                    $product = $item->product;
+                    if (!$product) return 0; // Fallback jika benar-benar tidak ada di DB
+                    
+                    $cost = $product->cost_price ?? ($product->selling_price * 0.7); 
                     return ($item->price - $cost) * $item->qty;
                 });
             });

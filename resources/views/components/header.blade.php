@@ -2,10 +2,11 @@
 
 <header class="app-header">
     <div class="header-content">
-        <!-- <div class="header-left">
-            <img src="{{ asset('main_logo.png') }}" alt="Logo" class="global-logo">
-        </div> -->
-
+        <div class="header-left">
+            <button id="sidebar-toggle" class="header-icon-btn" title="Toggle Sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
 
         <div class="header-center">
             @isset($search)
@@ -263,3 +264,20 @@
         .app-header { margin-bottom: 1rem; }
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtn = document.getElementById('sidebar-toggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function() {
+                document.body.classList.toggle('sidebar-collapsed');
+                localStorage.setItem('sidebar_state', document.body.classList.contains('sidebar-collapsed'));
+            });
+
+            // Restore state on load
+            if (localStorage.getItem('sidebar_state') === 'true') {
+                document.body.classList.add('sidebar-collapsed');
+            }
+        }
+    });
+</script>
