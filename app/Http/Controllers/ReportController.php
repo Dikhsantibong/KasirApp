@@ -60,4 +60,41 @@ class ReportController extends Controller
             'recentTransactions'
         ));
     }
+
+    public function export()
+    {
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        $totalPenjualan = Transaction::whereMonth('created_at', $currentMonth)
+                                     ->whereYear('created_at', $currentYear)
+                                     ->sum('total_amount');
+        $totalPengeluaran = Expense::whereMonth('created_at', $currentMonth)
+                                   ->whereYear('created_at', $currentYear)
+                                   ->sum('amount');
+        $keuntunganBersih = $totalPenjualan - $totalPengeluaran;
+        $totalTransaksi = Transaction::whereMonth('created_at', $currentMonth)
+                                     ->whereYear('created_at', $currentYear)
+                                     ->count();
+
+        $topMarginProducts = Product::whereNotNull('cost_price')
+            ->where('cost_price', '>', 0)
+            ->select('name', 'cost_price', 'selling_price',
+                DB::raw('(selling_price - cost_price) as margin'),
+                DB::raw('ROUND(((selling_price - cost_price) / cost_price) * 100, 1) as margin_pct'))
+            ->orderByDesc('margin')
+            ->take(5)
+            ->get();
+
+        $recentTransactions = Transaction::with('user')->orderBy('created_at', 'desc')->take(20)->get();
+        
+        $expenses = Expense::whereMonth('created_at', $currentMonth)
+                            ->whereYear('created_at', $currentYear)
+                            ->get();
+
+        return view('reports.export', compact(
+            'totalPenjualan', 'totalPengeluaran', 'keuntunganBersih',
+            'totalTransaksi', 'topMarginProducts', 'recentTransactions', 'expenses'
+        ));
+    }
 }

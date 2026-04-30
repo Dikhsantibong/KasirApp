@@ -23,7 +23,9 @@
             <div class="page-header">
                 <div><h1 class="page-title">Laporan Bisnis</h1></div>
                 <div class="header-right">
-                    <button class="btn-primary-solid"><i class="fas fa-download"></i> Download Laporan</button>
+                    <a href="{{ route('laporan.download') }}" target="_blank" class="btn-primary-solid">
+                        <i class="fas fa-download"></i> Download Laporan
+                    </a>
                 </div>
             </div>
 

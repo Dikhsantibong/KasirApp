@@ -90,13 +90,15 @@
                 <i class="fas fa-cash-register"></i>
                 <span>Kasir</span>
             </a>
-            <a href="{{ route('produk.index') }}" class="nav-link {{ request()->routeIs('produk.index') ? 'active' : '' }}">
-                <i class="fas fa-box"></i>
-                <span>Produk</span>
-            </a>
             <a href="{{ route('transaksi.index') }}" class="nav-link {{ request()->routeIs('transaksi.index') ? 'active' : '' }}">
                 <i class="fas fa-history"></i>
                 <span>Transaksi</span>
+            </a>
+
+            @if(auth()->user()->role === 'Owner')
+            <a href="{{ route('produk.index') }}" class="nav-link {{ request()->routeIs('produk.index') ? 'active' : '' }}">
+                <i class="fas fa-box"></i>
+                <span>Produk</span>
             </a>
             <a href="{{ route('stock.index') }}" class="nav-link {{ request()->routeIs('stock.index') ? 'active' : '' }}">
                 <i class="fas fa-archive"></i>
@@ -128,6 +130,7 @@
                     Insight Bisnis <small style="background:#0052cc; color:white; padding:2px 6px; border-radius:10px; font-size:0.6rem;">AI</small>
                 </span>
             </a>
+            @endif
         </nav>
 
         <div class="sidebar-footer">
