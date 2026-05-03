@@ -161,18 +161,30 @@
                                 </td>
                                 <td class="product-info-cell">
                                     <h4>{{ $product->name }}</h4>
-                                    <p>{{ $product->barcode ?? '-' }}</p>
+                                    <p>{{ $product->sku ?? '-' }}</p>
                                 </td>
                                 <td><span class="category-badge">{{ $product->category->name ?? 'Uncategorized' }}</span></td>
-                                <td class="price-text">Rp {{ number_format($product->cost_price ?? 0, 0, ',', '.') }}</td>
+                                <td class="price-text">Rp {{ number_format($product->buy_price ?? 0, 0, ',', '.') }}</td>
                                 <td class="price-text">Rp {{ number_format($product->selling_price, 0, ',', '.') }}</td>
-                                <td class="stock-text {{ $product->stock <= ($product->min_stock ?: 5) ? 'danger' : '' }}">{{ $product->stock }} Pcs</td>
-                                <td><span class="status-badge {{ $statusClass }}">{{ $statusText }}</span></td>
+                                <td class="stock-text {{ $product->stock <= ($product->min_stock ?: 5) ? 'danger' : '' }}">
+                                    @if($product->is_recipe_based)
+                                        <span style="color:#0052cc; font-size:0.8rem;"><i class="fas fa-blender"></i> Berbasis Resep</span>
+                                    @else
+                                        {{ $product->stock }} Pcs
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($product->has_customization)
+                                        <span class="status-badge" style="background:#fefce8; color:#d97706; font-size:0.7rem;">Customizable</span>
+                                    @else
+                                        <span class="status-badge {{ $statusClass }}">{{ $statusText }}</span>
+                                    @endif
+                                </td>
                                 <td style="text-align:center;">
                                     <div class="action-dropdown">
                                         <button class="action-btn" onclick="toggleMenu(this)"><i class="fas fa-ellipsis-v"></i></button>
                                         <div class="action-menu">
-                                            <button class="action-menu-item" onclick="openEditModal('{{ $product->id }}', '{{ addslashes($product->name) }}', '{{ $product->category_id }}', '{{ $product->barcode }}', {{ $product->cost_price ?? 0 }}, {{ $product->selling_price }}, {{ $product->stock }}, {{ $product->min_stock ?? 0 }})">
+                                            <button class="action-menu-item" onclick="openEditModal('{{ $product->id }}', '{{ addslashes($product->name) }}', '{{ $product->category_id }}', '{{ $product->sku }}', {{ $product->buy_price ?? 0 }}, {{ $product->selling_price }}, {{ $product->stock }}, {{ $product->min_stock ?? 0 }}, {{ $product->is_recipe_based ? 'true' : 'false' }}, {{ $product->has_customization ? 'true' : 'false' }})">
                                                 <i class="fas fa-edit"></i> Edit Produk
                                             </button>
                                             <form action="{{ route('produk.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus produk ini?')">
@@ -254,13 +266,13 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Barcode / SKU</label>
-                    <input type="text" name="barcode" class="form-input" placeholder="Opsional">
+                    <input type="text" name="sku" class="form-input" placeholder="Opsional">
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Harga Beli (Rp) *</label>
-                    <input type="number" name="cost_price" class="form-input" placeholder="0" min="0" required>
+                    <input type="number" name="buy_price" class="form-input" placeholder="0" min="0" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Harga Jual (Rp) *</label>
@@ -270,12 +282,23 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Stok Awal *</label>
-                    <input type="number" name="stock" class="form-input" placeholder="0" min="0" required>
+                    <input type="number" name="stock" class="form-input" placeholder="0" min="0">
+                    <small style="color:#64748b; font-size:0.7rem;">Kosongkan jika ini minuman berbasis resep</small>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Stok Minimum *</label>
-                    <input type="number" name="min_stock" class="form-input" placeholder="5" min="0" required>
+                    <input type="number" name="min_stock" class="form-input" placeholder="5" min="0">
                 </div>
+            </div>
+            <div class="form-row" style="background:#f8fafc; padding:1rem; border-radius:10px; margin-bottom:1.5rem;">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                    <input type="checkbox" name="is_recipe_based" value="1" style="width:18px; height:18px;">
+                    <span style="font-weight:600; font-size:0.9rem;">Berbasis Resep (Stok ikut bahan baku)</span>
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                    <input type="checkbox" name="has_customization" value="1" style="width:18px; height:18px;">
+                    <span style="font-weight:600; font-size:0.9rem;">Menu Customizable (Size, Suhu, dll)</span>
+                </label>
             </div>
             <button type="submit" class="btn-submit"><i class="fas fa-save" style="margin-right:8px;"></i> Simpan Produk</button>
         </form>
@@ -312,13 +335,13 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Barcode / SKU</label>
-                    <input type="text" name="barcode" id="edit-barcode" class="form-input">
+                    <input type="text" name="sku" id="edit-sku" class="form-input">
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Harga Beli (Rp) *</label>
-                    <input type="number" name="cost_price" id="edit-cost" class="form-input" min="0" required>
+                    <input type="number" name="buy_price" id="edit-cost" class="form-input" min="0" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Harga Jual (Rp) *</label>
@@ -328,12 +351,22 @@
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Stok *</label>
-                    <input type="number" name="stock" id="edit-stock" class="form-input" min="0" required>
+                    <input type="number" name="stock" id="edit-stock" class="form-input" min="0">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Stok Minimum *</label>
-                    <input type="number" name="min_stock" id="edit-minstock" class="form-input" min="0" required>
+                    <input type="number" name="min_stock" id="edit-minstock" class="form-input" min="0">
                 </div>
+            </div>
+            <div class="form-row" style="background:#f8fafc; padding:1rem; border-radius:10px; margin-bottom:1.5rem;">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                    <input type="checkbox" name="is_recipe_based" id="edit-is_recipe" value="1" style="width:18px; height:18px;">
+                    <span style="font-weight:600; font-size:0.9rem;">Berbasis Resep</span>
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                    <input type="checkbox" name="has_customization" id="edit-has_custom" value="1" style="width:18px; height:18px;">
+                    <span style="font-weight:600; font-size:0.9rem;">Customizable</span>
+                </label>
             </div>
             <button type="submit" class="btn-submit" style="background:#f59e0b;"><i class="fas fa-save" style="margin-right:8px;"></i> Update Produk</button>
         </form>
@@ -390,18 +423,20 @@
     function closeCategoryModal() { document.getElementById('categoryModal').classList.remove('show'); }
 
     // === EDIT MODAL ===
-    function openEditModal(id, name, catId, barcode, cost, price, stock, minStock) {
+    function openEditModal(id, name, catId, barcode, cost, price, stock, minStock, isRecipe, hasCustom) {
         // Close any open action menus
         document.querySelectorAll('.action-menu').forEach(m => m.classList.remove('show'));
 
         document.getElementById('editForm').action = '/produk/' + id;
         document.getElementById('edit-name').value = name;
         document.getElementById('edit-category').value = catId;
-        document.getElementById('edit-barcode').value = barcode;
+        document.getElementById('edit-sku').value = barcode;
         document.getElementById('edit-cost').value = cost;
         document.getElementById('edit-price').value = price;
         document.getElementById('edit-stock').value = stock;
         document.getElementById('edit-minstock').value = minStock;
+        document.getElementById('edit-is_recipe').checked = isRecipe;
+        document.getElementById('edit-has_custom').checked = hasCustom;
         document.getElementById('editModal').classList.add('show');
     }
     function closeEditModal() { document.getElementById('editModal').classList.remove('show'); }

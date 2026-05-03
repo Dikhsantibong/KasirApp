@@ -11,6 +11,9 @@ class TransactionItem extends Model
     protected $keyType = 'string';
     public $timestamps = false;
     protected $guarded = [];
+    protected $casts = [
+        'customizations' => 'array',
+    ];
 
     public function transaction()
     {

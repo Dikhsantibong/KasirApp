@@ -79,23 +79,25 @@
                 <!-- Products Grid -->
                 <div class="products-grid">
                     @forelse($products as $product)
-                        <div class="product-card" onclick="addToCart('{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->selling_price }}, {{ $product->stock }}, '{{ $product->image ? asset('storage/' . $product->image) : '' }}')">
+                        <div class="product-card" onclick="openCustomModal('{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->selling_price }}, {{ $product->has_customization ? 'true' : 'false' }}, '{{ $product->image ? asset('storage/' . $product->image) : '' }}')">
                             <div class="product-img-wrapper">
                                 @if($product->image && Storage::disk('public')->exists($product->image))
                                     <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" style="object-fit: cover; height: 100%; width: 100%;">
                                 @else
                                     <img src="https://ui-avatars.com/api/?name={{ urlencode($product->name) }}&background=random&color=fff&size=200" alt="{{ $product->name }}">
                                 @endif
+                                @if(!$product->is_recipe_based)
                                 <span class="stock-badge {{ $product->stock <= ($product->min_stock ?: 5) ? 'stock-low' : 'stock-ok' }}">
                                     Stok: {{ $product->stock }}
                                 </span>
+                                @endif
                             </div>
                             <div class="product-info">
                                 <span class="product-category">{{ $product->category->name ?? 'Uncategorized' }}</span>
                                 <span class="product-name">{{ $product->name }}</span>
                                 <div class="product-price-row">
                                     <span class="product-price">Rp {{ number_format($product->selling_price, 0, ',', '.') }}</span>
-                                    <button class="btn-add-product" onclick="event.stopPropagation(); addToCart('{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->selling_price }}, {{ $product->stock }}, '{{ $product->image ? asset('storage/' . $product->image) : '' }}')">
+                                    <button class="btn-add-product" onclick="event.stopPropagation(); openCustomModal('{{ $product->id }}', '{{ addslashes($product->name) }}', {{ $product->selling_price }}, {{ $product->has_customization ? 'true' : 'false' }}, '{{ $product->image ? asset('storage/' . $product->image) : '' }}')">
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
@@ -113,10 +115,18 @@
             <!-- CART SECTION -->
             <div class="cart-section">
                 <div class="cart-header">
-                    <h2>Keranjang Belanja</h2>
-                    <button class="btn-clear-cart" onclick="clearCart()" title="Kosongkan Keranjang">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
+                    <h2>Pesanan Aktif</h2>
+                    <div style="display:flex; gap: 8px;">
+                        <button class="btn-clear-cart" onclick="holdCart()" title="Hold Order" style="background: #fefce8; color: #d97706; padding: 4px 8px; border-radius: 6px;">
+                            <i class="fas fa-pause"></i> Hold
+                        </button>
+                        <button class="btn-clear-cart" onclick="recallCart()" title="Recall Order" style="background: #eff6ff; color: #3b82f6; padding: 4px 8px; border-radius: 6px;">
+                            <i class="fas fa-play"></i> Recall
+                        </button>
+                        <button class="btn-clear-cart" onclick="clearCart()" title="Kosongkan">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="cart-items" id="cart-container">
@@ -166,8 +176,61 @@
     </main>
 </div>
 
+<!-- CUSTOM DRINK MODAL -->
+<div class="receipt-overlay" id="custom-modal" style="z-index: 10000;">
+    <div class="receipt-card" style="width: 500px; text-align: left; padding: 2rem;">
+        <h2 id="modal-product-name" style="font-size: 1.2rem; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 1rem; margin-bottom: 1.5rem;">Kustomisasi Minuman</h2>
+        
+        <input type="hidden" id="modal-product-id">
+        <input type="hidden" id="modal-product-price">
+        <input type="hidden" id="modal-product-image">
+
+        <div style="margin-bottom: 1rem;">
+            <label style="font-weight: 700; color: #475569; display: block; margin-bottom: 0.5rem;">Ukuran</label>
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="button" class="btn-custom-option size-option active" data-value="Small" onclick="selectOption(this, 'size')">Small</button>
+                <button type="button" class="btn-custom-option size-option" data-value="Medium" onclick="selectOption(this, 'size')">Medium (+5000)</button>
+                <button type="button" class="btn-custom-option size-option" data-value="Large" onclick="selectOption(this, 'size')">Large (+8000)</button>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+            <label style="font-weight: 700; color: #475569; display: block; margin-bottom: 0.5rem;">Temperature</label>
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="button" class="btn-custom-option temp-option active" data-value="Hot" onclick="selectOption(this, 'temp')">Hot</button>
+                <button type="button" class="btn-custom-option temp-option" data-value="Iced" onclick="selectOption(this, 'temp')">Iced</button>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+            <label style="font-weight: 700; color: #475569; display: block; margin-bottom: 0.5rem;">Gula</label>
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="button" class="btn-custom-option sugar-option active" data-value="Normal" onclick="selectOption(this, 'sugar')">Normal</button>
+                <button type="button" class="btn-custom-option sugar-option" data-value="Less" onclick="selectOption(this, 'sugar')">Less Sugar</button>
+                <button type="button" class="btn-custom-option sugar-option" data-value="No Sugar" onclick="selectOption(this, 'sugar')">No Sugar</button>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label style="font-weight: 700; color: #475569; display: block; margin-bottom: 0.5rem;">Catatan Khusus</label>
+            <textarea id="modal-notes" rows="2" style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.5rem; font-family: inherit;" placeholder="Contoh: Jangan terlalu panas..."></textarea>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: flex-end; border-top: 2px solid #f1f5f9; padding-top: 1.5rem;">
+            <button type="button" onclick="closeCustomModal()" style="padding: 0.75rem 1.5rem; border-radius: 8px; border: 1px solid #cbd5e1; background: white; font-weight: 600; cursor: pointer;">Batal</button>
+            <button type="button" onclick="confirmCustomAddToCart()" style="padding: 0.75rem 1.5rem; border-radius: 8px; border: none; background: #d97706; color: white; font-weight: 600; cursor: pointer;">Tambah ke Pesanan</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-custom-option { flex: 1; padding: 0.5rem; border: 1px solid #cbd5e1; background: white; border-radius: 8px; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s; }
+    .btn-custom-option.active { background: #fffbeb; border-color: #d97706; color: #d97706; }
+</style>
+
 <!-- TOAST NOTIFICATION -->
 <div class="toast-notification" id="toast"></div>
+
 
 <!-- RECEIPT OVERLAY -->
 <div class="receipt-overlay" id="receipt-overlay">
@@ -198,6 +261,39 @@
     let paymentMethod = 'Tunai';
     let isProcessing = false;
     let currentTransactionId = null;
+    let offlineQueue = JSON.parse(localStorage.getItem('kasir_offline_queue')) || [];
+    let holdQueue = JSON.parse(localStorage.getItem('kasir_hold_queue')) || [];
+
+    // === NETWORK LISTENERS ===
+    window.addEventListener('online', () => {
+        updateNetworkStatus(true);
+        syncOfflineQueue();
+    });
+    window.addEventListener('offline', () => {
+        updateNetworkStatus(false);
+    });
+
+    function updateNetworkStatus(isOnline, isSyncing = false) {
+        const badge = document.getElementById('global-network-badge');
+        const icon = document.getElementById('global-network-icon');
+        const text = document.getElementById('global-network-text');
+        
+        if (!badge) return;
+
+        if (isSyncing) {
+            badge.className = 'system-status syncing';
+            icon.className = 'fas fa-sync fa-spin';
+            text.textContent = 'Menyinkronkan...';
+        } else if (isOnline) {
+            badge.className = 'system-status online';
+            icon.className = 'fas fa-wifi';
+            text.textContent = 'Online';
+        } else {
+            badge.className = 'system-status offline';
+            icon.className = 'fas fa-wifi-slash';
+            text.textContent = 'Offline';
+        }
+    }
 
     // === TOAST ===
     function showToast(message, isError = false) {
@@ -212,34 +308,84 @@
         return 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
     }
 
+    // === CUSTOM MODAL LOGIC ===
+    function openCustomModal(id, name, price, hasCustom, image) {
+        if (!hasCustom) {
+            addToCart(id, name, price, image, {});
+            return;
+        }
+        
+        document.getElementById('modal-product-id').value = id;
+        document.getElementById('modal-product-name').textContent = name;
+        document.getElementById('modal-product-price').value = price;
+        document.getElementById('modal-product-image').value = image;
+        document.getElementById('modal-notes').value = '';
+        
+        // Reset selections
+        document.querySelectorAll('.btn-custom-option').forEach(el => el.classList.remove('active'));
+        document.querySelector('.size-option[data-value="Small"]').classList.add('active');
+        document.querySelector('.temp-option[data-value="Hot"]').classList.add('active');
+        document.querySelector('.sugar-option[data-value="Normal"]').classList.add('active');
+        
+        document.getElementById('custom-modal').classList.add('show');
+    }
+
+    function closeCustomModal() {
+        document.getElementById('custom-modal').classList.remove('show');
+    }
+
+    function selectOption(btn, type) {
+        document.querySelectorAll(`.${type}-option`).forEach(el => el.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    function confirmCustomAddToCart() {
+        const id = document.getElementById('modal-product-id').value;
+        const name = document.getElementById('modal-product-name').textContent;
+        let basePrice = parseFloat(document.getElementById('modal-product-price').value);
+        const image = document.getElementById('modal-product-image').value;
+        
+        const size = document.querySelector('.size-option.active').getAttribute('data-value');
+        const temp = document.querySelector('.temp-option.active').getAttribute('data-value');
+        const sugar = document.querySelector('.sugar-option.active').getAttribute('data-value');
+        const notes = document.getElementById('modal-notes').value;
+
+        // Calculate price adjustment
+        let finalPrice = basePrice;
+        if (size === 'Medium') finalPrice += 5000;
+        if (size === 'Large') finalPrice += 8000;
+
+        const custom = { size, temperature: temp, sugar, notes };
+        
+        addToCart(id, name, finalPrice, image, custom);
+        closeCustomModal();
+    }
+
     // === ADD TO CART ===
-    function addToCart(id, name, price, stock, image = '') {
-        const existing = cart.find(i => i.id === id);
+    function addToCart(id, name, price, image, custom = {}) {
+        // Generate a unique ID based on product + custom attributes to stack identical orders
+        const customHash = JSON.stringify(custom);
+        const cartItemId = id + '_' + btoa(customHash).substring(0, 10);
+
+        const existing = cart.find(i => i.cartItemId === cartItemId);
 
         if (existing) {
-            if (existing.qty >= stock) {
-                showToast('Stok produk "' + name + '" tidak mencukupi!', true);
-                return;
-            }
             existing.qty += 1;
         } else {
-            cart.push({ id, name, price, stock, image, qty: 1 });
+            cart.push({ cartItemId, id, name, price, image, qty: 1, custom });
         }
 
-        showToast(name + ' ditambahkan ke keranjang');
+        showToast(name + ' ditambahkan');
         renderCart();
     }
 
     // === UPDATE QTY ===
-    function updateQty(id, change) {
-        const idx = cart.findIndex(i => i.id === id);
+    function updateQty(cartItemId, change) {
+        const idx = cart.findIndex(i => i.cartItemId === cartItemId);
         if (idx > -1) {
             const newQty = cart[idx].qty + change;
             if (newQty <= 0) {
                 cart.splice(idx, 1);
-            } else if (newQty > cart[idx].stock) {
-                showToast('Stok tidak mencukupi!', true);
-                return;
             } else {
                 cart[idx].qty = newQty;
             }
@@ -247,10 +393,50 @@
         }
     }
 
+    // === HOLD / RECALL CART ===
+    function holdCart() {
+        if (cart.length === 0) return;
+        const name = prompt("Masukkan nama/meja pesanan untuk disimpan:");
+        if (!name) return;
+        
+        holdQueue.push({ id: Date.now(), name, cart: [...cart] });
+        localStorage.setItem('kasir_hold_queue', JSON.stringify(holdQueue));
+        
+        cart = [];
+        renderCart();
+        showToast(`Pesanan ${name} disimpan sementara`);
+    }
+
+    function recallCart() {
+        if (holdQueue.length === 0) {
+            showToast('Tidak ada pesanan yang tersimpan', true);
+            return;
+        }
+        
+        let text = "Pilih pesanan untuk dipanggil:\n";
+        holdQueue.forEach((item, idx) => {
+            text += `${idx + 1}. ${item.name} (${item.cart.length} item)\n`;
+        });
+        
+        const selection = prompt(text + "\nMasukkan nomor:");
+        const idx = parseInt(selection) - 1;
+        
+        if (idx >= 0 && idx < holdQueue.length) {
+            if (cart.length > 0) {
+                if (!confirm("Keranjang saat ini akan digantikan. Lanjutkan?")) return;
+            }
+            cart = holdQueue[idx].cart;
+            holdQueue.splice(idx, 1);
+            localStorage.setItem('kasir_hold_queue', JSON.stringify(holdQueue));
+            renderCart();
+            showToast(`Pesanan ${cart.name || 'dipanggil'} berhasil dikembalikan`);
+        }
+    }
+
     // === CLEAR CART ===
     function clearCart() {
         if (cart.length === 0) return;
-        if (confirm('Apakah Anda yakin ingin mengosongkan keranjang?')) {
+        if (confirm('Apakah Anda yakin ingin mengosongkan pesanan?')) {
             cart = [];
             renderCart();
         }
@@ -272,9 +458,9 @@
 
         if (cart.length === 0) {
             html = '<div style="text-align:center; color:#94a3b8; padding: 3rem 1rem;">' +
-                   '<i class="fas fa-shopping-basket fa-3x" style="opacity:0.15; margin-bottom:1rem; display:block;"></i>' +
-                   '<p style="font-weight:600;">Keranjang masih kosong</p>' +
-                   '<p style="font-size:0.8rem;">Klik produk untuk menambahkan</p></div>';
+                   '<i class="fas fa-coffee fa-3x" style="opacity:0.15; margin-bottom:1rem; display:block;"></i>' +
+                   '<p style="font-weight:600;">Belum ada pesanan</p>' +
+                   '<p style="font-size:0.8rem;">Pilih menu untuk memulai</p></div>';
         } else {
             cart.forEach(item => {
                 const itemTotal = item.price * item.qty;
@@ -283,15 +469,26 @@
                 
                 const imgSrc = item.image ? item.image : `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name)}&background=random&color=fff&size=50`;
                 
+                let customText = '';
+                if (item.custom && Object.keys(item.custom).length > 0) {
+                    customText = `<div style="font-size:0.75rem; color:#64748b; margin-top:2px;">
+                        ${item.custom.size ? item.custom.size + ', ' : ''}
+                        ${item.custom.temperature ? item.custom.temperature + ', ' : ''}
+                        ${item.custom.sugar ? item.custom.sugar : ''}
+                        ${item.custom.notes ? '<br><i class="fas fa-comment-alt" style="margin-right:4px;"></i>'+item.custom.notes : ''}
+                    </div>`;
+                }
+
                 html += `
                     <div class="cart-item">
                         <img src="${imgSrc}" class="cart-item-img" alt="${item.name}" style="object-fit: cover;">
                         <div class="cart-item-details">
                             <div class="cart-item-title">${item.name}</div>
-                            <div class="qty-control">
-                                <button class="btn-qty" onclick="updateQty('${item.id}', -1)">-</button>
+                            ${customText}
+                            <div class="qty-control" style="margin-top: 6px;">
+                                <button class="btn-qty" onclick="updateQty('${item.cartItemId}', -1)">-</button>
                                 <input type="text" class="qty-input" value="${item.qty}" readonly>
-                                <button class="btn-qty" onclick="updateQty('${item.id}', 1)">+</button>
+                                <button class="btn-qty" onclick="updateQty('${item.cartItemId}', 1)">+</button>
                             </div>
                         </div>
                         <div class="cart-item-price">${formatRupiah(itemTotal)}</div>
@@ -303,13 +500,13 @@
         container.innerHTML = html;
         document.getElementById('summary-subtotal').textContent = formatRupiah(subtotal);
         document.getElementById('summary-total').textContent = formatRupiah(subtotal);
-        document.getElementById('summary-item-count').textContent = totalItems + ' produk';
+        document.getElementById('summary-item-count').textContent = totalItems + ' item';
     }
 
-    // === PROCESS PAYMENT (AJAX TO BACKEND) ===
+    // === PROCESS PAYMENT ===
     function processPayment() {
         if (cart.length === 0) {
-            showToast('Keranjang masih kosong!', true);
+            showToast('Pesanan masih kosong!', true);
             return;
         }
 
@@ -324,12 +521,27 @@
             items: cart.map(item => ({
                 product_id: item.id,
                 qty: item.qty,
-                price: item.price
+                price: item.price,
+                name: item.name,
+                customizations: item.custom
             })),
             payment_method: paymentMethod,
-            _token: '{{ csrf_token() }}'
+            _token: '{{ csrf_token() }}',
+            offline_id: 'OFFLINE-' + Date.now() + Math.floor(Math.random() * 1000)
         };
 
+        // Calculate total for local receipt
+        const totalAmount = payload.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+        if (!navigator.onLine) {
+            // OFFLINE MODE: Save to queue immediately
+            saveToOfflineQueue(payload);
+            showOfflineReceipt(payload.offline_id, totalAmount, payload.items);
+            resetCartUI();
+            return;
+        }
+
+        // ONLINE MODE: Try fetching
         fetch('{{ route("kasir.store") }}', {
             method: 'POST',
             headers: {
@@ -339,11 +551,14 @@
             },
             body: JSON.stringify(payload)
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error("Network response was not ok");
+            return res.json();
+        })
         .then(data => {
             if (data.success) {
                 showReceipt(data);
-                // Save current cart data to render on the receipt view
+                
                 const receiptItemsHtml = cart.map(item => `
                     <div class="receipt-item-row">
                         <span>${item.name} x${item.qty}</span>
@@ -360,14 +575,75 @@
             }
         })
         .catch(err => {
-            showToast('Terjadi kesalahan jaringan!', true);
-            console.error(err);
+            // If fetch fails (maybe connection dropped right after check)
+            console.warn('Fetch failed, switching to offline queue', err);
+            saveToOfflineQueue(payload);
+            showOfflineReceipt(payload.offline_id, totalAmount, payload.items);
+            resetCartUI();
         })
         .finally(() => {
             isProcessing = false;
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-shopping-cart"></i> Bayar Sekarang';
         });
+    }
+
+    // === OFFLINE QUEUE LOGIC ===
+    function saveToOfflineQueue(payload) {
+        offlineQueue.push(payload);
+        localStorage.setItem('kasir_offline_queue', JSON.stringify(offlineQueue));
+        updateNetworkStatus(false);
+        showToast('Offline: Transaksi disimpan di perangkat', true);
+    }
+
+    function syncOfflineQueue() {
+        if (!navigator.onLine || offlineQueue.length === 0) return;
+        
+        updateNetworkStatus(true, true); // Show Syncing status
+
+        const syncPromises = offlineQueue.map(payload => {
+            return fetch('{{ route("kasir.store") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            }).then(res => res.json());
+        });
+
+        Promise.allSettled(syncPromises).then(results => {
+            const successfulIndexes = [];
+            results.forEach((result, idx) => {
+                if (result.status === 'fulfilled' && result.value.success) {
+                    successfulIndexes.push(idx);
+                }
+            });
+
+            // Remove successful transactions from queue (reverse loop to not mess up indexes)
+            for (let i = successfulIndexes.length - 1; i >= 0; i--) {
+                offlineQueue.splice(successfulIndexes[i], 1);
+            }
+
+            localStorage.setItem('kasir_offline_queue', JSON.stringify(offlineQueue));
+            
+            if (offlineQueue.length === 0) {
+                showToast('Sinkronisasi data offline berhasil!');
+            } else {
+                showToast(`Sinkronisasi sebagian berhasil. Tersisa ${offlineQueue.length} data.`, true);
+            }
+            
+            updateNetworkStatus(true);
+        });
+    }
+
+    function resetCartUI() {
+        isProcessing = false;
+        document.getElementById('btn-pay').disabled = false;
+        document.getElementById('btn-pay').innerHTML = '<i class="fas fa-shopping-cart"></i> Bayar Sekarang';
+        cart = [];
+        renderCart();
     }
 
     // === RECEIPT ===
@@ -379,20 +655,46 @@
         document.getElementById('receipt-overlay').classList.add('show');
     }
 
+    function showOfflineReceipt(offlineId, total, items) {
+        document.getElementById('receipt-method').textContent = 'Metode: ' + paymentMethod + ' (Offline)';
+        document.getElementById('receipt-total').textContent = formatRupiah(total);
+        document.getElementById('receipt-id').textContent = 'ID: ' + offlineId;
+        currentTransactionId = offlineId; // Offline ID can't be printed via backend yet until synced
+        
+        const receiptItemsHtml = items.map(item => `
+            <div class="receipt-item-row">
+                <span>${item.name} x${item.qty}</span>
+                <span>${formatRupiah(item.price * item.qty)}</span>
+            </div>
+        `).join('');
+        document.getElementById('receipt-items').innerHTML = receiptItemsHtml;
+
+        document.getElementById('receipt-overlay').classList.add('show');
+    }
+
     function printReceipt() {
         if (!currentTransactionId) return;
+        if (currentTransactionId.startsWith('OFFLINE-')) {
+            alert('Tidak dapat mencetak struk offline. Harap tunggu hingga sinkronisasi selesai.');
+            return;
+        }
         const printUrl = `/transaksi/${currentTransactionId}/cetak`;
         window.open(printUrl, '_blank', 'width=400,height=600');
     }
 
     function closeReceipt() {
         document.getElementById('receipt-overlay').classList.remove('show');
-        window.location.reload();
+        // Do not reload to maintain offline state, just reset
+        resetCartUI();
     }
 
     // === INIT ===
     document.addEventListener('DOMContentLoaded', function() {
         renderCart();
+        updateNetworkStatus(navigator.onLine);
+        if (navigator.onLine && offlineQueue.length > 0) {
+            syncOfflineQueue();
+        }
     });
 </script>
 @endpush

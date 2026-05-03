@@ -5,25 +5,30 @@
                 <!-- Logo Utama (Muncul saat sidebar terbuka) -->
                 <img src="{{ asset('main_logo.png') }}" alt="Logo" class="sidebar-logo logo-full">
                 
-                <!-- Logo Ikon (Muncul saat sidebar ditutup) - Silakan ubah src-nya nanti -->
-                <img src="{{ asset('icon_logo.png') }}" alt="Icon" class="sidebar-logo logo-collapsed">
+                <!-- Logo Ikon (Muncul saat sidebar ditutup) -->
+                <img src="{{ asset('main_logo.png') }}" alt="Icon" class="sidebar-logo logo-collapsed">
             </div>
         </div>
 
 
         <style>
-            .sidebar-brand { display: flex; align-items: center; gap: 12px; }
-            .sidebar-logo { height: 38px; width: auto; object-fit: contain; }
+            .sidebar { padding-top: 0.5rem !important; }
+            .sidebar-brand { 
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+                padding: 0 !important; 
+                margin-bottom: 5px !important; 
+                width: 100%;
+            }
+            .sidebar-logo { height: 70px; width: auto; object-fit: contain; transform: scale(2); }
             .brand-logo { 
-                background: #fff; 
-                padding: 8px; 
-                border-radius: 12px; 
-                box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+                background: transparent; 
+                padding: 0; 
                 display: flex; 
                 align-items: center; 
                 justify-content: center;
-                border: 1px solid #f1f5f9;
-                transition: padding 0.3s ease;
+                transition: all 0.3s ease;
             }
 
             /* Collapsed State Styles */
@@ -67,10 +72,11 @@
                 font-size: 1.3rem;
             }
             body.sidebar-collapsed .sidebar .brand-logo {
-                padding: 4px;
+                padding: 0;
             }
             body.sidebar-collapsed .sidebar .sidebar-logo {
-                height: 24px;
+                height: 40px;
+                transform: scale(1.5);
             }
             body.sidebar-collapsed .logo-full {
                 display: none;
@@ -90,6 +96,10 @@
                 <i class="fas fa-cash-register"></i>
                 <span>Kasir</span>
             </a>
+            <a href="{{ route('barista.index') }}" class="nav-link {{ request()->routeIs('barista.index') ? 'active' : '' }}">
+                <i class="fas fa-coffee"></i>
+                <span>Barista Queue</span>
+            </a>
             <a href="{{ route('transaksi.index') }}" class="nav-link {{ request()->routeIs('transaksi.index') ? 'active' : '' }}">
                 <i class="fas fa-history"></i>
                 <span>Transaksi</span>
@@ -98,7 +108,11 @@
             @if(auth()->user()->role === 'Owner')
             <a href="{{ route('produk.index') }}" class="nav-link {{ request()->routeIs('produk.index') ? 'active' : '' }}">
                 <i class="fas fa-box"></i>
-                <span>Produk</span>
+                <span>Produk / Menu</span>
+            </a>
+            <a href="{{ route('ingredients.index') }}" class="nav-link {{ request()->routeIs('ingredients.index') ? 'active' : '' }}">
+                <i class="fas fa-leaf"></i>
+                <span>Bahan Baku</span>
             </a>
             <a href="{{ route('stock.index') }}" class="nav-link {{ request()->routeIs('stock.index') ? 'active' : '' }}">
                 <i class="fas fa-archive"></i>
@@ -129,6 +143,10 @@
                 <span style="display:flex; justify-content:space-between; width:100%;">
                     Insight Bisnis <small style="background:#0052cc; color:white; padding:2px 6px; border-radius:10px; font-size:0.6rem;">AI</small>
                 </span>
+            </a>
+            <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.index') ? 'active' : '' }}">
+                <i class="fas fa-cog"></i>
+                <span>Pengaturan</span>
             </a>
             @endif
         </nav>

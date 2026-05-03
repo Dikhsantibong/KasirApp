@@ -80,8 +80,8 @@ class AuthController extends Controller
                     $product = $item->product;
                     if (!$product) return 0; // Fallback jika benar-benar tidak ada di DB
                     
-                    $cost = $product->cost_price ?? ($product->selling_price * 0.7); 
-                    return ($item->price - $cost) * $item->qty;
+                    $cost = $product->buy_price ?? ($product->selling_price * 0.7); 
+                    return ($item->price - $cost) * $item->quantity;
                 });
             });
 
@@ -105,7 +105,7 @@ class AuthController extends Controller
             ->join('products', 'transaction_items.product_id', '=', 'products.id')
             ->join('transactions', 'transaction_items.transaction_id', '=', 'transactions.id')
             ->whereDate('transactions.created_at', $today)
-            ->select('products.name', DB::raw('SUM(transaction_items.qty) as total_qty'))
+            ->select('products.name', DB::raw('SUM(transaction_items.quantity) as total_qty'))
             ->groupBy('products.id', 'products.name')
             ->orderByDesc('total_qty')
             ->first();

@@ -14,7 +14,7 @@ class StockController extends Controller
 
         if ($request->has('search') && $request->search != '') {
             $query->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('barcode', 'like', '%' . $request->search . '%');
+                  ->orWhere('sku', 'like', '%' . $request->search . '%');
         }
 
         // Sort by stock to easily find items that need restocking
@@ -22,7 +22,7 @@ class StockController extends Controller
         
         $totalItems = Product::sum('stock');
         $lowStockItems = Product::whereColumn('stock', '<=', 'min_stock')->count();
-        $totalValue = Product::sum(\DB::raw('cost_price * stock'));
+        $totalValue = Product::sum(\DB::raw('buy_price * stock'));
 
         return view('stocks.index', compact('products', 'totalItems', 'lowStockItems', 'totalValue'));
     }

@@ -13,11 +13,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        User::updateOrCreate(['email' => 'admin@kasir.com'], [
+            'id' => \Illuminate\Support\Str::uuid(),
+            'name' => 'Admin Kasir',
+            'password' => \Illuminate\Support\Facades\Hash::make('password'),
+            'role' => 'Kasir'
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        User::updateOrCreate(['email' => 'owner@kasir.com'], [
+            'id' => \Illuminate\Support\Str::uuid(),
+            'name' => 'Owner',
+            'password' => \Illuminate\Support\Facades\Hash::make('password'),
+            'role' => 'Owner'
+        ]);
+
+        $this->call([
+            CoffeeShopSeeder::class,
         ]);
     }
 }

@@ -15,7 +15,8 @@ class KasirController extends Controller
     public function index(Request $request)
     {
         $categories = Category::all();
-        $query = Product::with('category')->where('stock', '>', 0);
+        // Fetch all products, we don't strictly filter by stock > 0 because stock depends on ingredients now
+        $query = Product::with('category', 'recipes.ingredient');
 
         if ($request->has('category_id') && $request->category_id != '') {
             $query->where('category_id', $request->category_id);
@@ -24,7 +25,7 @@ class KasirController extends Controller
         if ($request->has('search') && $request->search != '') {
             $query->where(function($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('barcode', 'like', '%' . $request->search . '%');
+                  ->orWhere('sku', 'like', '%' . $request->search . '%');
             });
         }
 
@@ -40,7 +41,11 @@ class KasirController extends Controller
             'items.*.product_id' => 'required|string',
             'items.*.qty' => 'required|integer|min:1',
             'items.*.price' => 'required|numeric|min:0',
+            'items.*.customizations' => 'nullable|array',
             'payment_method' => 'required|string',
+            'split_payment' => 'nullable|array',
+            'customer_id' => 'nullable|string',
+            'offline_id' => 'nullable|string'
         ]);
 
         DB::beginTransaction();
@@ -49,21 +54,13 @@ class KasirController extends Controller
             $totalAmount = 0;
             $items = $request->items;
 
-            // Validate stock availability first
-            foreach ($items as $item) {
-                $product = Product::find($item['product_id']);
-                if (!$product) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Produk tidak ditemukan: ' . $item['product_id']
-                    ], 404);
-                }
-                if ($product->stock < $item['qty']) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Stok tidak cukup untuk produk: ' . $product->name . ' (tersisa: ' . $product->stock . ')'
-                    ], 422);
-                }
+            // Optional: Payment Gateway Integration Check
+            $pgActive = \App\Models\Setting::where('key', 'payment_gateway_active')->value('value') === 'true';
+            $transactionStatus = 'completed';
+            
+            if ($pgActive && $request->payment_method === 'QRIS') {
+                // If payment gateway is active, we might set status to pending and return a payment URL
+                $transactionStatus = 'pending_payment';
             }
 
             // Calculate total
@@ -72,31 +69,67 @@ class KasirController extends Controller
             }
 
             // Create transaction
-            $transactionId = Str::uuid()->toString();
+            $transactionId = $request->offline_id ?: Str::uuid()->toString();
+            
+            // Check if it's already synced
+            $existing = Transaction::find($transactionId);
+            if ($existing) {
+                DB::rollBack();
+                return response()->json(['success' => true, 'message' => 'Already synced']);
+            }
+
             $transaction = Transaction::create([
                 'id' => $transactionId,
-                'user_id' => auth()->id(),
+                'user_id' => auth()->id() ?? \App\Models\User::first()->id, // Fallback for testing
+                'customer_id' => $request->customer_id,
                 'total_amount' => $totalAmount,
                 'payment_method' => $request->payment_method,
-                'status' => 'Lunas',
+                'split_payment' => $request->split_payment,
+                'status' => $transactionStatus,
+                'is_synced' => true,
                 'created_at' => now(),
             ]);
 
-            // Create transaction items & reduce stock
+            // Create items & deduct stock
             foreach ($items as $item) {
                 $subtotal = $item['price'] * $item['qty'];
+                $customizations = $item['customizations'] ?? [];
 
                 TransactionItem::create([
                     'id' => Str::uuid()->toString(),
                     'transaction_id' => $transactionId,
                     'product_id' => $item['product_id'],
-                    'qty' => $item['qty'],
+                    'quantity' => $item['qty'],
                     'price' => $item['price'],
                     'subtotal' => $subtotal,
+                    'customizations' => $customizations,
+                    'status' => 'pending', // Send to barista
                 ]);
 
-                // Reduce product stock
-                Product::where('id', $item['product_id'])->decrement('stock', $item['qty']);
+                $product = Product::find($item['product_id']);
+                if ($product) {
+                    if ($product->is_recipe_based) {
+                        $size = $customizations['size'] ?? 'Small';
+                        $temp = $customizations['temperature'] ?? 'Hot';
+                        
+                        // Deduct ingredients based on recipe
+                        $recipes = \App\Models\ProductRecipe::where('product_id', $product->id)
+                            ->where(function($q) use ($size, $temp) {
+                                $q->where('size', $size)->orWhereNull('size');
+                            })
+                            ->where(function($q) use ($temp) {
+                                $q->where('temperature', $temp)->orWhereNull('temperature');
+                            })->get();
+                            
+                        foreach ($recipes as $recipe) {
+                            $totalQtyNeeded = $recipe->quantity * $item['qty'];
+                            \App\Models\Ingredient::where('id', $recipe->ingredient_id)->decrement('stock', $totalQtyNeeded);
+                        }
+                    } else {
+                        // Regular stock product (e.g. Snack)
+                        Product::where('id', $item['product_id'])->decrement('stock', $item['qty']);
+                    }
+                }
             }
 
             DB::commit();
@@ -106,6 +139,9 @@ class KasirController extends Controller
                 'message' => 'Transaksi berhasil diproses!',
                 'transaction_id' => $transactionId,
                 'total' => $totalAmount,
+                'payment_status' => $transactionStatus,
+                // In real scenario, return QR URL here if $transactionStatus === 'pending_payment'
+                'payment_url' => $transactionStatus === 'pending_payment' ? 'https://mock-pg.com/pay/'.$transactionId : null
             ]);
 
         } catch (\Exception $e) {

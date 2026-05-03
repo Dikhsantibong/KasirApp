@@ -46,7 +46,21 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/laporan', [\App\Http\Controllers\ReportController::class, 'index'])->name('laporan.index');
         Route::get('/laporan/download', [\App\Http\Controllers\ReportController::class, 'export'])->name('laporan.download');
         Route::get('/insight', [\App\Http\Controllers\InsightController::class, 'index'])->name('insight.index');
+        
+        // Pengaturan (Khusus Owner)
+        Route::get('/pengaturan', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
+        Route::post('/pengaturan', [\App\Http\Controllers\SettingController::class, 'store'])->name('settings.store');
+        
+        // Bahan Baku (Ingredients)
+        Route::get('/bahan-baku', [\App\Http\Controllers\IngredientController::class, 'index'])->name('ingredients.index');
+        Route::post('/bahan-baku', [\App\Http\Controllers\IngredientController::class, 'store'])->name('ingredients.store');
+        Route::put('/bahan-baku/{id}', [\App\Http\Controllers\IngredientController::class, 'update'])->name('ingredients.update');
+        Route::delete('/bahan-baku/{id}', [\App\Http\Controllers\IngredientController::class, 'destroy'])->name('ingredients.destroy');
     });
+
+    // Barista Queue (Bisa diakses Kasir & Owner, tapi logisnya Kasir/Barista)
+    Route::get('/barista', [\App\Http\Controllers\BaristaController::class, 'index'])->name('barista.index');
+    Route::post('/barista/update/{id}', [\App\Http\Controllers\BaristaController::class, 'updateStatus'])->name('barista.update');
 });
 
 

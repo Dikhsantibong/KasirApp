@@ -76,7 +76,7 @@ class PurchaseController extends Controller
                 $product = Product::find($item['product_id']);
                 if ($product) {
                     $product->increment('stock', $item['qty']);
-                    $product->update(['cost_price' => $item['cost_price']]);
+                    $product->update(['buy_price' => $item['cost_price']]);
                 }
             }
 

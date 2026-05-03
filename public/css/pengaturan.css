@@ -1,0 +1,170 @@
+@import url('kasir.css');
+
+.settings-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--bg-light);
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 260px;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 2rem;
+}
+
+.page-content {
+    padding: 1.5rem 2rem;
+    width: 100%;
+    max-width: 900px;
+}
+
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.settings-card {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: #fffcf0;
+}
+
+.card-header h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.section-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    transition: all 0.2s;
+    background: #fffdf5;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+    background: var(--white);
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+
+.checkbox-input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--primary);
+    margin-top: 2px;
+}
+
+.checkbox-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    line-height: 1.4;
+}
+
+.helper-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-left: 28px;
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    margin-top: 1rem;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    padding: 0.75rem 1.75rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.2);
+}
+
+.btn-primary:hover {
+    background: var(--secondary);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px -1px rgba(217, 119, 6, 0.3);
+}
+
+.alert-success {
+    background-color: #ecfdf5;
+    border: 1px solid #10b981;
+    color: #065f46;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}

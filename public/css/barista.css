@@ -1,0 +1,272 @@
+@import url('kasir.css');
+
+.barista-layout {
+    display: flex;
+    height: 100vh;
+    background-color: var(--bg-light);
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 260px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.barista-container {
+    padding: 1.5rem 2rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.barista-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.header-title h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.header-title p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.status-indicator {
+    padding: 0.6rem 1.25rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-online {
+    background-color: #ecfdf5;
+    color: #10b981;
+}
+
+.status-offline {
+    background-color: #fef2f2;
+    color: #ef4444;
+}
+
+.queue-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+}
+
+.ticket {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    border-top: 8px solid #f59e0b; /* Amber 500 */
+    position: relative;
+    transition: transform 0.2s;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.ticket:hover {
+    transform: translateY(-4px);
+}
+
+.ticket.on_progress {
+    border-top-color: #3b82f6; /* Blue 500 */
+}
+
+.ticket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    border-bottom: 2px dashed var(--border);
+    padding-bottom: 1rem;
+}
+
+.ticket-id {
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--text-dark);
+}
+
+.ticket-time {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.ticket-customer {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.item-row {
+    margin-bottom: 1.25rem;
+    padding: 1rem;
+    background: #fffcf0;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.item-name-qty {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.item-qty {
+    background: var(--text-dark);
+    color: var(--white);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+.item-name {
+    font-weight: 700;
+    color: var(--text-dark);
+    font-size: 1.15rem;
+}
+
+.item-status-badge {
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+}
+
+.status-pending {
+    background: #fff7ed;
+    color: #f59e0b;
+}
+
+.status-progress {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.item-custom {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    border-left: 3px solid var(--primary);
+}
+
+.item-custom div {
+    margin-bottom: 4px;
+}
+
+.item-custom strong {
+    color: var(--text-dark);
+}
+
+.ticket-actions {
+    margin-top: 1rem;
+    display: flex;
+}
+
+.btn-action {
+    width: 100%;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-process {
+    background: #3b82f6;
+    color: white;
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2);
+}
+
+.btn-process:hover {
+    background: #2563eb;
+    transform: scale(1.02);
+}
+
+.btn-ready {
+    background: #10b981;
+    color: white;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+}
+
+.btn-ready:hover {
+    background: #059669;
+    transform: scale(1.02);
+}
+
+.status-ticket-badge {
+    position: absolute;
+    top: -14px;
+    right: 20px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.badge-pending {
+    background: #f59e0b;
+}
+
+.badge-progress {
+    background: #3b82f6;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    background: white;
+    border-radius: 24px;
+    border: 2px dashed var(--border);
+    grid-column: 1 / -1;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: var(--border);
+    margin-bottom: 1.5rem;
+}
+
+.empty-state p {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 1.1rem;
+}

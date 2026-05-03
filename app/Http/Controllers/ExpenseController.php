@@ -21,18 +21,19 @@ class ExpenseController extends Controller
             ->whereYear('created_at', $currentYear)
             ->sum('amount');
 
-        // Pengeluaran "Terbanyak" — since there's no category column, group by name
-        $topExpense = Expense::select('name', DB::raw('SUM(amount) as total_amount'))
+        // Pengeluaran "Terbanyak" — group by category
+        $topExpense = Expense::select('category', DB::raw('SUM(amount) as total_amount'))
             ->whereMonth('created_at', $currentMonth)
             ->whereYear('created_at', $currentYear)
-            ->groupBy('name')
+            ->groupBy('category')
             ->orderByDesc('total_amount')
             ->first();
 
         // Paginated History
         $query = Expense::orderBy('created_at', 'desc');
         if ($request->has('search') && $request->search != '') {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('category', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%');
         }
         $expenses = $query->paginate(12);
 
@@ -42,14 +43,16 @@ class ExpenseController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:150',
+            'category' => 'required|string|max:150',
             'amount' => 'required|numeric|min:0',
+            'description' => 'nullable|string',
         ]);
 
         $expense = Expense::create([
             'id' => Str::uuid()->toString(),
-            'name' => $request->name,
+            'category' => $request->category,
             'amount' => $request->amount,
+            'description' => $request->description,
         ]);
 
         if ($request->ajax()) {

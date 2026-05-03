@@ -32,11 +32,11 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string|max:150',
             'category_id' => 'required|string',
-            'cost_price' => 'required|numeric|min:0',
+            'buy_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'min_stock' => 'required|integer|min:0',
-            'barcode' => 'nullable|string|max:100',
+            'stock' => 'nullable|integer|min:0',
+            'min_stock' => 'nullable|integer|min:0',
+            'sku' => 'nullable|string|max:100',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -49,12 +49,14 @@ class ProductController extends Controller
             'id' => Str::uuid()->toString(),
             'name' => $request->name,
             'category_id' => $request->category_id,
-            'barcode' => $request->barcode,
-            'cost_price' => $request->cost_price,
+            'sku' => $request->sku,
+            'buy_price' => $request->buy_price,
             'selling_price' => $request->selling_price,
-            'stock' => $request->stock,
-            'min_stock' => $request->min_stock,
+            'stock' => $request->stock ?? 0,
+            'min_stock' => $request->min_stock ?? 0,
             'image' => $imagePath,
+            'is_recipe_based' => $request->has('is_recipe_based'),
+            'has_customization' => $request->has('has_customization'),
             'created_at' => now(),
         ]);
 
@@ -66,11 +68,11 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string|max:150',
             'category_id' => 'required|string',
-            'cost_price' => 'required|numeric|min:0',
+            'buy_price' => 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'min_stock' => 'required|integer|min:0',
-            'barcode' => 'nullable|string|max:100',
+            'stock' => 'nullable|integer|min:0',
+            'min_stock' => 'nullable|integer|min:0',
+            'sku' => 'nullable|string|max:100',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -79,11 +81,13 @@ class ProductController extends Controller
         $data = [
             'name' => $request->name,
             'category_id' => $request->category_id,
-            'barcode' => $request->barcode,
-            'cost_price' => $request->cost_price,
+            'sku' => $request->sku,
+            'buy_price' => $request->buy_price,
             'selling_price' => $request->selling_price,
-            'stock' => $request->stock,
-            'min_stock' => $request->min_stock,
+            'stock' => $request->stock ?? 0,
+            'min_stock' => $request->min_stock ?? 0,
+            'is_recipe_based' => $request->has('is_recipe_based'),
+            'has_customization' => $request->has('has_customization'),
         ];
 
         if ($request->hasFile('image')) {

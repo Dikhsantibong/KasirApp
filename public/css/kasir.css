@@ -1,12 +1,12 @@
 :root {
-    --primary: #0052cc;
-    --primary-light: rgba(0, 82, 204, 0.08);
-    --secondary: #0065ff;
-    --bg-light: #F7F9FB;
+    --primary: #d97706; /* amber-600 */
+    --primary-light: rgba(217, 119, 6, 0.1);
+    --secondary: #b45309; /* amber-700 */
+    --bg-light: #fffbeb; /* amber-50 */
     --white: #ffffff;
-    --text-dark: #172b4d;
-    --text-muted: #5e6c84;
-    --border: #ebecf0;
+    --text-dark: #451a03; /* yellow-900 */
+    --text-muted: #78350f; /* yellow-800 */
+    --border: #fde68a; /* amber-200 */
     --shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
@@ -232,7 +232,7 @@ body {
 }
 
 .category-tab.active {
-    background: #0052cc;
+    background: var(--primary);
     color: white;
     box-shadow: 0 4px 6px -1px rgba(0, 82, 204, 0.2), 0 2px 4px -1px rgba(0, 82, 204, 0.1);
 }
@@ -282,7 +282,7 @@ body {
 
 .product-category {
     font-size: 0.75rem;
-    color: #0052cc;
+    color: var(--primary);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -312,14 +312,14 @@ body {
 .product-price {
     font-size: 1.15rem;
     font-weight: 800;
-    color: #0052cc;
+    color: var(--primary);
 }
 
 .btn-add-product {
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    background: #0052cc;
+    background: var(--primary);
     color: white;
     border: none;
     display: flex;
@@ -330,7 +330,7 @@ body {
 }
 
 .btn-add-product:hover {
-    background: #003d99;
+    background: var(--secondary);
 }
 
 /* CART SECTION */
@@ -473,11 +473,11 @@ body {
 
 .total-value {
     font-size: 1.75rem;
-    color: #0052cc;
+    color: var(--primary);
 }
 
 .btn-add-discount {
-    color: #0052cc;
+    color: var(--primary);
     text-decoration: none;
     font-size: 0.85rem;
     font-weight: 600;
@@ -527,9 +527,9 @@ body {
 }
 
 .payment-btn.active {
-    border-color: #0052cc;
+    border-color: var(--primary);
     background: #f0f7ff;
-    color: #0052cc;
+    color: var(--primary);
 }
 
 .payment-btn i {
@@ -538,7 +538,7 @@ body {
 
 .btn-pay-now {
     width: 100%;
-    background: #0052cc;
+    background: var(--primary);
     color: white;
     border: none;
     border-radius: 12px;
@@ -555,5 +555,5 @@ body {
 }
 
 .btn-pay-now:hover {
-    background: #003d99;
+    background: var(--secondary);
 }

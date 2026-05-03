@@ -10,8 +10,8 @@
 <div class="login-page-wrapper">
     <!-- Header Section -->
     <div class="login-header-section">
-        <div class="login-logo-box">
-            <i class="fas fa-store"></i>
+        <div class="login-logo-box" style="background: white; border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 180px; height: 70px; border-radius: 20px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+            <img src="{{ asset('main_logo.png') }}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; transform: scale(1.6);">
         </div>
         <h1>Selamat Datang Kembali</h1>
         <p>Kelola bisnismu dengan lebih mudah hari ini</p>

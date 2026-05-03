@@ -13,6 +13,8 @@ class Transaction extends Model
     protected $guarded = [];
     protected $casts = [
         'created_at' => 'datetime',
+        'split_payment' => 'array',
+        'is_synced' => 'boolean',
     ];
 
     public function user()

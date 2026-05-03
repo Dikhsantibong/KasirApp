@@ -31,11 +31,11 @@ class ReportController extends Controller
                                      ->count();
 
         // Top margin products
-        $topMarginProducts = Product::whereNotNull('cost_price')
-            ->where('cost_price', '>', 0)
-            ->select('name', 'cost_price', 'selling_price',
-                DB::raw('(selling_price - cost_price) as margin'),
-                DB::raw('ROUND(((selling_price - cost_price) / cost_price) * 100, 1) as margin_pct'))
+        $topMarginProducts = Product::whereNotNull('buy_price')
+            ->where('buy_price', '>', 0)
+            ->select('name', 'buy_price', 'selling_price',
+                DB::raw('(selling_price - buy_price) as margin'),
+                DB::raw('ROUND(((selling_price - buy_price) / buy_price) * 100, 1) as margin_pct'))
             ->orderByDesc('margin')
             ->take(3)
             ->get();
@@ -77,11 +77,11 @@ class ReportController extends Controller
                                      ->whereYear('created_at', $currentYear)
                                      ->count();
 
-        $topMarginProducts = Product::whereNotNull('cost_price')
-            ->where('cost_price', '>', 0)
-            ->select('name', 'cost_price', 'selling_price',
-                DB::raw('(selling_price - cost_price) as margin'),
-                DB::raw('ROUND(((selling_price - cost_price) / cost_price) * 100, 1) as margin_pct'))
+        $topMarginProducts = Product::whereNotNull('buy_price')
+            ->where('buy_price', '>', 0)
+            ->select('name', 'buy_price', 'selling_price',
+                DB::raw('(selling_price - buy_price) as margin'),
+                DB::raw('ROUND(((selling_price - buy_price) / buy_price) * 100, 1) as margin_pct'))
             ->orderByDesc('margin')
             ->take(5)
             ->get();

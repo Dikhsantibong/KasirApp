@@ -22,9 +22,9 @@
         </div>
 
         <div class="header-right">
-            <div class="system-status">
-                <span class="dot pulse"></span>
-                <span>Sinkronisasi Berhasil</span>
+            <div class="system-status online" id="global-network-badge">
+                <i class="fas fa-wifi" id="global-network-icon"></i>
+                <span id="global-network-text">Online</span>
             </div>
             
             <div class="header-actions">
@@ -74,9 +74,11 @@
     }
 
     .global-logo {
-        height: 36px;
+        height: 32px;
         width: auto;
         object-fit: contain;
+        transform: scale(1.8);
+        margin-left: 15px;
     }
 
     .page-context {
@@ -149,29 +151,15 @@
         align-items: center;
         gap: 8px;
         padding: 6px 12px;
-        background: #e6fffa;
-        color: #319795;
         border-radius: 8px;
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         font-weight: 700;
+        transition: all 0.3s ease;
     }
 
-    .system-status .dot {
-        width: 6px;
-        height: 6px;
-        background: #38a169;
-        border-radius: 50%;
-    }
-
-    .pulse {
-        animation: header-pulse 2s infinite;
-    }
-
-    @keyframes header-pulse {
-        0% { box-shadow: 0 0 0 0 rgba(56, 161, 105, 0.4); }
-        70% { box-shadow: 0 0 0 8px rgba(56, 161, 105, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(56, 161, 105, 0); }
-    }
+    .system-status.online { background: #e6fffa; color: #10b981; border: 1px solid #a7f3d0; }
+    .system-status.offline { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
+    .system-status.syncing { background: #fffbeb; color: #f59e0b; border: 1px solid #fde68a; }
 
     .header-actions {
         display: flex;
@@ -279,5 +267,33 @@
                 document.body.classList.add('sidebar-collapsed');
             }
         }
+
+        // Global Network Listener
+        function updateGlobalNetworkStatus() {
+            const badge = document.getElementById('global-network-badge');
+            const icon = document.getElementById('global-network-icon');
+            const text = document.getElementById('global-network-text');
+            
+            // Skip update if currently syncing (kasir view will handle this state)
+            if (badge && badge.classList.contains('syncing')) return;
+
+            if (navigator.onLine) {
+                if (badge) {
+                    badge.className = 'system-status online';
+                    icon.className = 'fas fa-wifi';
+                    text.textContent = 'Online';
+                }
+            } else {
+                if (badge) {
+                    badge.className = 'system-status offline';
+                    icon.className = 'fas fa-wifi-slash';
+                    text.textContent = 'Offline Mode';
+                }
+            }
+        }
+
+        window.addEventListener('online', updateGlobalNetworkStatus);
+        window.addEventListener('offline', updateGlobalNetworkStatus);
+        updateGlobalNetworkStatus(); // Init
     });
 </script>

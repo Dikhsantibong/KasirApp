@@ -93,7 +93,7 @@
                     <div class="icon-top-blue"><i class="fas fa-receipt"></i></div>
                     <h3>Terbanyak</h3>
                     @if($topExpense)
-                        <p>Pengeluaran terbesar: {{ $topExpense->name }}</p>
+                        <p>Kategori terbesar: {{ $topExpense->category }}</p>
                         <h1>Rp {{ number_format($topExpense->total_amount, 0, ',', '.') }}</h1>
                     @else
                         <p>Belum ada data pengeluaran bulan ini.</p>
@@ -125,8 +125,8 @@
                             <tr>
                                 <td><span class="date-val">{{ \Carbon\Carbon::parse($e->created_at)->format('d M Y') }}</span></td>
                                 <td>
-                                    <span class="desc-val">{{ $e->name ?? '-' }}</span>
-                                    <span class="invoice-val">Invoice: #EXP-{{ strtoupper(substr($e->id, 0, 4)) }}</span>
+                                    <span class="desc-val">{{ $e->category ?? '-' }}</span>
+                                    <span class="invoice-val">{{ $e->description }}</span>
                                 </td>
                                 <td><span class="amount-val">Rp {{ number_format($e->amount, 0, ',', '.') }}</span></td>
                             </tr>
@@ -171,8 +171,12 @@
         <form action="{{ route('pengeluaran.store') }}" method="POST" id="expenseForm">
             @csrf
             <div class="form-group">
-                <label class="form-label">Keterangan / Nama *</label>
-                <input type="text" name="name" class="form-input" placeholder="Contoh: Bayar Listrik, Gaji Karyawan" required>
+                <label class="form-label">Kategori *</label>
+                <input type="text" name="category" class="form-input" placeholder="Contoh: Operasional, Gaji, Listrik" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Keterangan / Detail</label>
+                <textarea name="description" class="form-input" placeholder="Detail pengeluaran..." style="height: 80px;"></textarea>
             </div>
             <div class="form-group">
                 <label class="form-label">Nominal (Rp) *</label>

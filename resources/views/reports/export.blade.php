@@ -95,7 +95,7 @@
                 @foreach($topMarginProducts as $tp)
                 <tr>
                     <td>{{ $tp->name }}</td>
-                    <td>Rp {{ number_format($tp->cost_price, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($tp->buy_price, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($tp->selling_price, 0, ',', '.') }}</td>
                     <td class="font-bold">Rp {{ number_format($tp->margin, 0, ',', '.') }}</td>
                     <td class="text-right">{{ $tp->margin_pct }}%</td>
