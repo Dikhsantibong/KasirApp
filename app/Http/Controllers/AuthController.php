@@ -8,6 +8,7 @@ use App\Models\Transaction;
 use App\Models\Product;
 use App\Models\Debt;
 use App\Models\Expense;
+use App\Models\Ingredient;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -120,9 +121,43 @@ class AuthController extends Controller
         // 8. Aktivitas Terakhir
         $recentActivities = Transaction::orderBy('created_at', 'desc')->take(5)->get();
 
+        // 9. Status Order Real-time (Antrean)
+        $activeOrdersCount = Transaction::whereDate('created_at', $today)
+            ->whereIn('status', ['pending', 'on_progress'])
+            ->count();
+
+        // 10. Bahan Baku Kritis
+        $criticalIngredients = Ingredient::whereColumn('stock', '<=', 'min_stock')->get();
+
+        // 11. Metode Pembayaran
+        $paymentMethods = Transaction::whereDate('created_at', $today)
+            ->select('payment_method', DB::raw('COUNT(*) as count'), DB::raw('SUM(total_amount) as total'))
+            ->groupBy('payment_method')
+            ->get();
+
+        // 12. Customer Insight (Top Customers Hari Ini)
+        $topCustomers = Transaction::whereDate('created_at', $today)
+            ->whereNotNull('customer_id')
+            ->with('customer')
+            ->select('customer_id', DB::raw('COUNT(*) as count'), DB::raw('SUM(total_amount) as total'))
+            ->groupBy('customer_id')
+            ->orderByDesc('total')
+            ->take(5)
+            ->get();
+
+        // 13. Performa Staff
+        $staffPerformance = Transaction::whereDate('created_at', $today)
+            ->with('user')
+            ->select('user_id', DB::raw('COUNT(*) as count'), DB::raw('SUM(total_amount) as total'))
+            ->groupBy('user_id')
+            ->orderByDesc('count')
+            ->take(5)
+            ->get();
+
         return view('dashboard', compact(
             'todaySales', 'todayProfit', 'lowStockCount', 'totalDebt',
-            'chartData', 'chartLabels', 'topProduct', 'busyHour', 'recentActivities'
+            'chartData', 'chartLabels', 'topProduct', 'busyHour', 'recentActivities',
+            'activeOrdersCount', 'criticalIngredients', 'paymentMethods', 'topCustomers', 'staffPerformance'
         ));
     }
 
