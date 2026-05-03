@@ -69,7 +69,7 @@
     border-radius: 20px;
     padding: 1.5rem;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-    border-top: 8px solid #f59e0b; /* Amber 500 */
+    border-top: 8px solid var(--primary); /* Blue */
     position: relative;
     transition: transform 0.2s;
     border-left: 1px solid var(--border);
@@ -119,7 +119,7 @@
 .item-row {
     margin-bottom: 1.25rem;
     padding: 1rem;
-    background: #fffcf0;
+    background: #f8fafc;
     border-radius: 12px;
     border: 1px solid var(--border);
 }
@@ -161,8 +161,8 @@
 }
 
 .status-pending {
-    background: #fff7ed;
-    color: #f59e0b;
+    background: #f1f5f9;
+    color: #64748b;
 }
 
 .status-progress {
@@ -243,7 +243,7 @@
 }
 
 .badge-pending {
-    background: #f59e0b;
+    background: #94a3b8;
 }
 
 .badge-progress {

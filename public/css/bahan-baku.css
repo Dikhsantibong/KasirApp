@@ -67,7 +67,7 @@
     font-size: 1.25rem;
 }
 
-.icon-amber { background: rgba(217, 119, 6, 0.1); color: #d97706; }
+.icon-blue { background: rgba(0, 82, 204, 0.1); color: #0052cc; }
 .icon-red { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
 .icon-green { background: rgba(16, 185, 129, 0.1); color: #10b981; }
 
@@ -113,7 +113,7 @@
 
 .search-bar input:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
 }
 
 .search-bar input::placeholder {
@@ -199,7 +199,7 @@
 }
 
 .ingredient-table tr:hover {
-    background: #fffbeb;
+    background: #f1f5f9;
 }
 
 .ingredient-name {
@@ -214,7 +214,7 @@
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    background: rgba(217, 119, 6, 0.08);
+    background: rgba(0, 82, 204, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -273,7 +273,7 @@
 }
 
 .btn-edit:hover {
-    background: rgba(217, 119, 6, 0.08);
+    background: rgba(0, 82, 204, 0.08);
 }
 
 .btn-delete {
@@ -413,7 +413,7 @@
 .form-input:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
 }
 
 .form-row {

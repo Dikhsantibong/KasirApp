@@ -42,7 +42,7 @@
 .card-header {
     padding: 1.25rem 1.5rem;
     border-bottom: 1px solid var(--border);
-    background: #fffcf0;
+    background: #f8fafc;
 }
 
 .card-header h2 {
@@ -88,7 +88,7 @@
     font-size: 0.95rem;
     color: var(--text-dark);
     transition: all 0.2s;
-    background: #fffdf5;
+    background: var(--white);
 }
 
 .form-input:focus {
@@ -147,13 +147,13 @@
     font-size: 0.95rem;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.2);
+    box-shadow: 0 4px 6px -1px rgba(0, 82, 204, 0.2);
 }
 
 .btn-primary:hover {
     background: var(--secondary);
     transform: translateY(-1px);
-    box-shadow: 0 6px 12px -1px rgba(217, 119, 6, 0.3);
+    box-shadow: 0 6px 12px -1px rgba(0, 82, 204, 0.3);
 }
 
 .alert-success {
