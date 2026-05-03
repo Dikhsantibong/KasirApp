@@ -12,16 +12,16 @@
 
 
         <style>
-            .sidebar { padding-top: 0.5rem !important; }
+            .sidebar { padding-top: 0 !important; }
             .sidebar-brand { 
                 display: flex; 
                 align-items: center; 
                 justify-content: center; 
-                padding: 0 !important; 
-                margin-bottom: 5px !important; 
+                padding: 0.25rem 0 !important; 
+                margin-bottom: -0.5rem !important; 
                 width: 100%;
             }
-            .sidebar-logo { height: 70px; width: auto; object-fit: contain; transform: scale(2); }
+            .sidebar-logo { height: 130px; width: auto; object-fit: contain; }
             .brand-logo { 
                 background: transparent; 
                 padding: 0; 
@@ -29,6 +29,7 @@
                 align-items: center; 
                 justify-content: center;
                 transition: all 0.3s ease;
+                overflow: visible;
             }
 
             /* Collapsed State Styles */
@@ -75,8 +76,7 @@
                 padding: 0;
             }
             body.sidebar-collapsed .sidebar .sidebar-logo {
-                height: 40px;
-                transform: scale(1.5);
+                height: 45px;
             }
             body.sidebar-collapsed .logo-full {
                 display: none;
@@ -87,7 +87,7 @@
         </style>
 
 
-        <nav class="nav-menu">
+        <nav class="nav-menu" style="position: relative; z-index: 10;">
             <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <i class="fas fa-th-large"></i>
                 <span>Dashboard</span>
@@ -105,7 +105,7 @@
                 <span>Transaksi</span>
             </a>
 
-            @if(auth()->user()->role === 'Owner')
+            @if(in_array(auth()->user()->role, ['Owner', 'Manager']))
             <a href="{{ route('produk.index') }}" class="nav-link {{ request()->routeIs('produk.index') ? 'active' : '' }}">
                 <i class="fas fa-box"></i>
                 <span>Produk / Menu</span>
@@ -126,14 +126,6 @@
                 <i class="fas fa-users"></i>
                 <span>Pelanggan</span>
             </a>
-            <a href="{{ route('hutang.index') }}" class="nav-link {{ request()->routeIs('hutang.index') ? 'active' : '' }}">
-                <i class="fas fa-money-check-alt"></i>
-                <span>Hutang</span>
-            </a>
-            <a href="{{ route('pengeluaran.index') }}" class="nav-link {{ request()->routeIs('pengeluaran.index') ? 'active' : '' }}">
-                <i class="fas fa-wallet"></i>
-                <span>Pengeluaran</span>
-            </a>
             <a href="{{ route('laporan.index') }}" class="nav-link {{ request()->routeIs('laporan.index') ? 'active' : '' }}">
                 <i class="fas fa-chart-line"></i>
                 <span>Laporan</span>
@@ -143,6 +135,17 @@
                 <span style="display:flex; justify-content:space-between; width:100%;">
                     Insight Bisnis <small style="background:#0052cc; color:white; padding:2px 6px; border-radius:10px; font-size:0.6rem;">AI</small>
                 </span>
+            </a>
+            @endif
+
+            @if(auth()->user()->role === 'Owner')
+            <a href="{{ route('hutang.index') }}" class="nav-link {{ request()->routeIs('hutang.index') ? 'active' : '' }}">
+                <i class="fas fa-money-check-alt"></i>
+                <span>Hutang</span>
+            </a>
+            <a href="{{ route('pengeluaran.index') }}" class="nav-link {{ request()->routeIs('pengeluaran.index') ? 'active' : '' }}">
+                <i class="fas fa-wallet"></i>
+                <span>Pengeluaran</span>
             </a>
             <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.index') ? 'active' : '' }}">
                 <i class="fas fa-cog"></i>

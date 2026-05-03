@@ -27,6 +27,13 @@ class DatabaseSeeder extends Seeder
             'role' => 'Owner'
         ]);
 
+        User::updateOrCreate(['email' => 'manager@kasir.com'], [
+            'id' => \Illuminate\Support\Str::uuid(),
+            'name' => 'Manager',
+            'password' => \Illuminate\Support\Facades\Hash::make('password'),
+            'role' => 'Manager'
+        ]);
+
         $this->call([
             CoffeeShopSeeder::class,
         ]);

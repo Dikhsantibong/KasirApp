@@ -21,8 +21,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/transaksi', [\App\Http\Controllers\TransactionController::class, 'index'])->name('transaksi.index');
     Route::get('/transaksi/{id}/cetak', [\App\Http\Controllers\TransactionController::class, 'print'])->name('transaksi.cetak');
 
-    // Route khusus Owner
-    Route::middleware(['role:Owner'])->group(function() {
+    // Route untuk Owner & Manager
+    Route::middleware(['role:Owner,Manager'])->group(function() {
         Route::get('/produk', [\App\Http\Controllers\ProductController::class, 'index'])->name('produk.index');
         Route::post('/produk', [\App\Http\Controllers\ProductController::class, 'store'])->name('produk.store');
         Route::post('/produk/category', [\App\Http\Controllers\ProductController::class, 'storeCategory'])->name('produk.category.store');
@@ -38,24 +38,27 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pelanggan', [\App\Http\Controllers\CustomerController::class, 'index'])->name('pelanggan.index');
         Route::post('/pelanggan', [\App\Http\Controllers\CustomerController::class, 'store'])->name('pelanggan.store');
         
-        Route::get('/hutang', [\App\Http\Controllers\DebtController::class, 'index'])->name('hutang.index');
-        
-        Route::get('/pengeluaran', [\App\Http\Controllers\ExpenseController::class, 'index'])->name('pengeluaran.index');
-        Route::post('/pengeluaran', [\App\Http\Controllers\ExpenseController::class, 'store'])->name('pengeluaran.store');
-        
         Route::get('/laporan', [\App\Http\Controllers\ReportController::class, 'index'])->name('laporan.index');
         Route::get('/laporan/download', [\App\Http\Controllers\ReportController::class, 'export'])->name('laporan.download');
         Route::get('/insight', [\App\Http\Controllers\InsightController::class, 'index'])->name('insight.index');
-        
-        // Pengaturan (Khusus Owner)
-        Route::get('/pengaturan', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
-        Route::post('/pengaturan', [\App\Http\Controllers\SettingController::class, 'store'])->name('settings.store');
         
         // Bahan Baku (Ingredients)
         Route::get('/bahan-baku', [\App\Http\Controllers\IngredientController::class, 'index'])->name('ingredients.index');
         Route::post('/bahan-baku', [\App\Http\Controllers\IngredientController::class, 'store'])->name('ingredients.store');
         Route::put('/bahan-baku/{id}', [\App\Http\Controllers\IngredientController::class, 'update'])->name('ingredients.update');
         Route::delete('/bahan-baku/{id}', [\App\Http\Controllers\IngredientController::class, 'destroy'])->name('ingredients.destroy');
+    });
+
+    // Route khusus Owner (Keuangan & Pengaturan Kritikal)
+    Route::middleware(['role:Owner'])->group(function() {
+        Route::get('/hutang', [\App\Http\Controllers\DebtController::class, 'index'])->name('hutang.index');
+        
+        Route::get('/pengeluaran', [\App\Http\Controllers\ExpenseController::class, 'index'])->name('pengeluaran.index');
+        Route::post('/pengeluaran', [\App\Http\Controllers\ExpenseController::class, 'store'])->name('pengeluaran.store');
+        
+        // Pengaturan (Khusus Owner)
+        Route::get('/pengaturan', [\App\Http\Controllers\SettingController::class, 'index'])->name('settings.index');
+        Route::post('/pengaturan', [\App\Http\Controllers\SettingController::class, 'store'])->name('settings.store');
     });
 
     // Barista Queue (Bisa diakses Kasir & Owner, tapi logisnya Kasir/Barista)
